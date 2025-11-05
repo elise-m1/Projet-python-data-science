@@ -25,6 +25,33 @@ data = data.rename(columns={
     "Nombre de candidats bacheliers ayant reçu au moins une proposition d'admission":"Nb_proposition",
     "Nombre de candidats bacheliers ayant accepté une proposition d'admission":"Nb_acceptation"
 })
+#On renomme aussi les spécialités car le nom est trop long
+
+data["Specialite"].unique()[:30]
+
+remplacements = {
+    r"[Mm]ath[ée]matiques": "Maths",
+    r"[Pp]hysique[- ]?[Cc]himie": "PC",
+    r"[Nn]um[ée]rique.*[Ii]nformatiques": "NSI",
+    r"[Ss]ciences[ ]?[Ee]conomiques.*[Ss]ociales": "SES",
+    r"[Ss]ciences de la vie.*[Tt]erre": "SVT",
+    r"[Hh]istoire.*[Pp]olitiques": "HGGSP",
+    r"[Hh]umanit[ée]s.*[Pp]hilosophie": "HLP",
+    r"[Ll]angues.*[Rr][ée]gionales": "LLCER",
+    r"[Aa]rt": "Art",
+    r"[Bb]iologie.?[Ee]cologie": "B/E",
+    r"[Ss]ciences de l'ing[ée]nieur": "SI",
+    r"[ÉE]ducation.*[Ss]portives": "EPS",
+    r"[Ll]itt[ée]rature.*[Aa]ntiquit[ée]": "LLCA"
+}
+
+data["Specialite"] = data["Specialite"].replace(remplacements, regex=True)
+data["Specialite"].unique()[:20]
+#Cela ne m'affiche pas ce que je veux, les spécialités sont encore entières.
+
+data["Specialite"].head()
+#ça marche pas :(
+
 
 #Statistiques générales
 data["Annee_bac"].describe()
