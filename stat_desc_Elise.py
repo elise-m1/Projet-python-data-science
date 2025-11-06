@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 # Importation du dataset
 url = "https://www.data.gouv.fr/api/1/datasets/r/93ae799e-520d-412a-9b4a-29a979318aa3"
 data = pd.read_csv(url, sep=';')
@@ -28,6 +29,8 @@ data = data.rename(columns={
 #On renomme aussi les spécialités car le nom est trop long
 
 data["Specialite"].unique()[:30]
+type(data["Specialite"][0])
+print(data["Specialite"][0])
 
 remplacements = {
     r"[Mm]ath[ée]matiques": "Maths",
@@ -48,6 +51,11 @@ remplacements = {
 data["Specialite"] = data["Specialite"].replace(remplacements, regex=True)
 data["Specialite"].unique()[:20]
 #Cela ne m'affiche pas ce que je veux, les spécialités sont encore entières.
+
+#Transformer mes strings en  liste de str selon la virgule sans espace 
+# C'est mieux de créer une nouvelle colonne
+
+#Toujours regarder type et type par colonnes puis par individu (genre par exemple que le premier individu)
 
 data["Specialite"].head()
 #ça marche pas :(
