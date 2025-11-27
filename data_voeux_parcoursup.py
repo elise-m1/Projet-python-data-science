@@ -207,3 +207,135 @@ parcoursup2022 = pd.read_csv(url_parcoursup2022, sep =";")
 url_parcoursup2021 = "https://www.data.gouv.fr/api/1/datasets/r/52c41cd5-ce79-4052-8a07-bae0ecf0f36b"
 parcoursup2021 = pd.read_csv(url_parcoursup2021, sep =";")
 """
+
+#------------ Création de variables pour représenter les flux d'entrée dans les académies --------------------------
+
+# ici, les effectifs des admis regroupent tous les candidats parcoursup, y compris les bac pro et technologiques,
+# pas juste les bac généraux
+
+academies2024 = parcoursup2024.groupby(by="academie").sum() # regroupement des effectifs par académies
+
+academies2024["nb_entrants"] = academies2024["nb_admis"] - academies2024["nb_admis_ac"] #nb d'étudiants ne provenants pas de la même académie
+academies2024["nb_entrants"].sort_values(ascending=False)
+# Paris                  48377
+# Lyon                   22908
+# Lille                  22174
+# Versailles             21573
+# Créteil                21463
+# Toulouse               17379
+# Montpellier            14178
+# Rennes                 13909
+# Nantes                 13833
+# Bordeaux               12639
+# Aix-Marseille          11954
+# Normandie              10611
+# Grenoble                9082
+# Strasbourg              8700
+# Orléans-Tours           7717
+# Nancy-Metz              7707
+# Nice                    7131
+# Poitiers                6722
+# Clermont-Ferrand        6159
+# Reims                   6153
+# Amiens                  6049
+# Dijon                   5075
+# Limoges                 4146
+# Besancon                3706
+# La Réunion              3585
+# Guadeloupe              1052
+# Martinique               824
+# Corse                    673
+# Guyane                   535
+# Polynésie Française      452
+# Mayotte                  435
+# Etranger                 314
+
+academies2024["part_entrants"] = academies2024["nb_entrants"] / academies2024["nb_admis"]*100 # pourcentage d'entrants
+academies2024["part_entrants"].sort_values(ascending=False)
+# Paris                  82.332619
+# Etranger               74.940334
+# Limoges                58.808511
+# Lyon                   55.282591
+# Créteil                54.656345
+# Toulouse               51.555964
+# Montpellier            50.192941
+# Reims                  49.501207
+# Poitiers               49.112296
+# Clermont-Ferrand       48.888712
+# Versailles             48.812110
+# Strasbourg             45.650121
+# Lille                  45.422701
+# Aix-Marseille          43.283366
+# Bordeaux               43.253140
+# Dijon                  43.081494
+# Amiens                 42.541670
+# Nantes                 41.762522
+# Nice                   41.483421
+# Rennes                 41.393369
+# Besancon               41.027344
+# Orléans-Tours          40.635038
+# Grenoble               39.654194
+# Normandie              38.185548
+# Nancy-Metz             37.933750
+# Corse                  35.309549
+# La Réunion             34.938115
+# Martinique             30.183150
+# Guadeloupe             28.203753
+# Mayotte                26.835287
+# Guyane                 26.059425
+# Polynésie Française    25.322129
+
+# Remarque : pour l'analyse et la modélisation, faudra probablement exclure l'étranger 
+# car peu d'étudiants + situation vraiment différente des autres académies 
+
+# ------ Test en regroupant Paris, Créteil et Versailles ------------------------------
+
+parcoursup2024["academie_pcv"] = parcoursup2024["academie"]
+
+parcoursup2024 = parcoursup2024.replace(to_replace={"academie_pcv":"Paris"}, value={"academie_pcv":"Paris-Créteil-Versailles"})
+parcoursup2024 = parcoursup2024.replace(to_replace={"academie_pcv":"Versailles"}, value={"academie_pcv":"Paris-Créteil-Versailles"})
+parcoursup2024 = parcoursup2024.replace(to_replace={"academie_pcv":"Créteil"}, value={"academie_pcv":"Paris-Créteil-Versailles"})
+# print(parcoursup2024[["academie","academie_pcv"]].head(10))
+
+academies_pcv2024 = parcoursup2024.groupby(by="academie_pcv").sum()
+
+
+academies_pcv2024["nb_entrants"] = academies_pcv2024["nb_admis"] - academies_pcv2024["nb_admis_ac_pcv"] #nb d'étudiants ne provenants pas de la même académie
+academies_pcv2024["nb_entrants"].sort_values(ascending=False)
+
+academies_pcv2024["part_entrants"] = academies_pcv2024["nb_entrants"] / academies_pcv2024["nb_admis"]*100 # pourcentage d'entrants
+print(academies_pcv2024["part_entrants"].sort_values(ascending=False))
+# Etranger                    74.940334
+# Paris-Créteil-Versailles    64.274414
+# Limoges                     58.808511
+# Lyon                        55.282591
+# Toulouse                    51.555964
+# Montpellier                 50.192941
+# Reims                       49.501207
+# Poitiers                    49.112296
+# Clermont-Ferrand            48.888712
+# Strasbourg                  45.650121
+# Lille                       45.422701
+# Aix-Marseille               43.283366
+# Bordeaux                    43.253140
+# Dijon                       43.081494
+# Amiens                      42.541670
+# Nantes                      41.762522
+# Nice                        41.483421
+# Rennes                      41.393369
+# Besancon                    41.027344
+# Orléans-Tours               40.635038
+# Grenoble                    39.654194
+# Normandie                   38.185548
+# Nancy-Metz                  37.933750
+# Corse                       35.309549
+# La Réunion                  34.938115
+# Martinique                  30.183150
+# Guadeloupe                  28.203753
+# Mayotte                     26.835287
+# Guyane                      26.059425
+# Polynésie Française         25.322129
+
+# Remarque : en regroupant Paris, Créteil et Versailles, la part des entrants est beaucoup plus faible que celle de Paris
+# comme Paris, Créteil et Versailles c'est la même zone urbaine, c'est probablement plus pertinent de les regrouper pour l'analyse
+# car les entrants à Paris qui viennent des académies de Créteil ou Versailles n'ont en soit pas vraiment bougé
