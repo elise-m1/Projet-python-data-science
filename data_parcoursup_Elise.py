@@ -3,6 +3,10 @@ import pandas as pd
 url_parcoursup2024 = "https://www.data.gouv.fr/api/1/datasets/r/1d916b7c-bd4c-4951-845a-70f7ad7c17db"
 parcoursup2024 = pd.read_csv(url_parcoursup2024 , sep=";")
 
+#Différentes variables
+# Le code UAI (Unité Administrative Immatriculée) fonctionne comme une carte d’identité pour chaque établissement scolaire français
+
+
 # on supprime les colonnes dont on a pas besoin
 # à modifier éventuellement par la suite
 parcoursup2024 = parcoursup2024.drop(columns=["Session",
@@ -148,4 +152,19 @@ Moyen (0-10%)       71.558392
 Bon (10-30%)        64.867916
 Excellent (>30%)    50.814580
 """
-#Beaucoup plus de mobilité pour les formations excellentes ! Possiblement on pourrait aller plus dans le détail
+#Beaucoup plus de mobilité pour les formations excellentes ! Possiblement on pourrait aller plus dans le détail => quel genre de formations ? (notamment les prépas)
+
+#Qu'est-ce qu'on pourrait faire de plus ?
+# - Comparer entre types de filières : est-ce que c'est la filière qui accentue la mobilité ou au sein des filières le nivreau ?
+# - Exclure IdF ?
+# - Boxplot 
+
+#Analyse public/privé => statut de l'établissement
+
+# Filles/Garçons => dont effectif des candidates admises
+
+#Admis issus du même établissement => CPGE et BTS
+
+#Peut être regarder avec les boursiers aussi
+
+# Sélectivité => taux d'accès 
