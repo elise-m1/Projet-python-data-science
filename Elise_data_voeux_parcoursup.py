@@ -48,7 +48,6 @@ parcoursup2024 = parcoursup2024.drop(columns=["Session",
                                               "% d’admis ayant reçu leur proposition d’admission à l'ouverture de la procédure principale",
                                               "% d’admis ayant reçu leur proposition d’admission avant le baccalauréat",
                                               "% d’admis ayant reçu leur proposition d’admission avant la fin de la procédure principale",
-                                              "% d’admis dont filles",
                                               "% d’admis néo bacheliers issus du même établissement (BTS/CPGE)",
                                               "% d’admis néo bacheliers boursiers",
                                               "% d’admis néo bacheliers",
@@ -121,7 +120,8 @@ parcoursup2024 = parcoursup2024.rename(columns={"Statut de l’établissement de
                                "Dont effectif des admis néo bacheliers avec mention Assez Bien au bac" : "nb_admis_assez_bien",
                                "Dont effectif des admis néo bacheliers avec mention Bien au bac" : "nb_admis_bien",
                                "Dont effectif des admis néo bacheliers avec mention Très Bien au bac" : "nb_admis_tres_bien",
-                               "Dont effectif des admis néo bacheliers avec mention Très Bien avec félicitations au bac" : "nb_admis_felicitations"})
+                               "Dont effectif des admis néo bacheliers avec mention Très Bien avec félicitations au bac" : "nb_admis_felicitations",
+                               "% d’admis dont filles":"nb_admis_filles"})
 
 # On regarde les profils des élèves qui ont une mobilité, notamment leur mention au bac
 
@@ -274,7 +274,43 @@ plt.grid(axis="y", alpha=0.3)
 plt.savefig("boxplot_public_prive.png", dpi=300, bbox_inches="tight")
 
 # Filles/Garçons => dont effectif des candidates admises
+parcoursup2024["part_filles"]=pd.to_numeric(parcoursup2024["nb_admis_filles"], errors="coerce")
 
+#On crée différentes catégories selon la dominante masculine ou féminine
+bins_genre = [-1, 40, 60, 101]
+labels_genre = ["Dominante Masculine (<40% filles)", "Mixte (40-60%)", "Dominante Féminine (>60% filles)"]
+
+parcoursup2024["categorie_genre"] = pd.cut(
+    parcoursup2024["part_filles"],
+    bins=bins_genre,
+    labels=labels_genre
+)
+
+print("--- Mobilité selon le genre dominant de la formation ---")
+print(parcoursup2024.groupby("categorie_genre")["part_bac_ac"].mean())
+
+"""categorie_genre
+Dominante Masculine (<40% filles)    70.316555
+Mixte (40-60%)                       68.979613
+Dominante Féminine (>60% filles)     64.070805
+"""
+
+#C'est marrant mobilité plus forte dans formations féminines 
+#Boxplot
+plt.close("all")
+
+sns.boxplot(
+    data=parcoursup2024,
+    x="categorie_genre",
+    y="part_bac_ac"
+)
+
+plt.title("Mobilité selon le genre dominant dans la formation")
+plt.xlabel("Genre dominant dans la formation")
+plt.ylabel("Pourcentage d'étudiants loccaux (même académie)")
+plt.grid(axis="y", alpha=0.3)
+
+plt.savefig("boxplot_genre", dpi=300, bbox_inches="tight")
 #Admis issus du même établissement => CPGE et BTS
 
 #Peut être regarder avec les boursiers aussi
