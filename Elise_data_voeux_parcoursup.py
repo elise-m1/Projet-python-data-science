@@ -1,4 +1,6 @@
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 url_parcoursup2024 = "https://www.data.gouv.fr/api/1/datasets/r/1d916b7c-bd4c-4951-845a-70f7ad7c17db"
 parcoursup2024 = pd.read_csv(url_parcoursup2024 , sep=";")
@@ -148,4 +150,27 @@ Moyen (0-10%)       71.558392
 Bon (10-30%)        64.867916
 Excellent (>30%)    50.814580
 """
-#Beaucoup plus de mobilité pour les formations excellentes ! Possiblement on pourrait aller plus dans le détail
+#Beaucoup plus de mobilité pour les formations excellentes ! Possiblement on pourrait aller plus dans le détail.abs
+
+filiere = parcoursup2024.pivot_table(
+    index = "filiere_agr",
+    columns="niveau_formation",
+    values="part_bac_ac",
+    aggfunc="mean"
+)
+
+print(filiere)
+
+sns.heatmap(
+    filiere,
+    annot=True,
+    fmt=".1f",
+    cmap="YlGnBu",
+    linewidths=.5
+)
+
+plt.title("Poucentage d'étudiants locaux selon la filière et son niveau")
+plt.xlabel("Part de mentions très bien et de félicitations")
+plt.ylabel("Type de filiere")
+
+plt.savefig("heatmap_filiere_niveau.png", dpi=300, bbox_inches="tight")
