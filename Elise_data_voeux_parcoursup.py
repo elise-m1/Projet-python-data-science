@@ -77,7 +77,6 @@ parcoursup2024 = parcoursup2024.drop(columns=["Session",
                                               "Rang du dernier appelé du groupe 3",
                                               "Concours communs et banque d'épreuves",
                                               "Lien de la formation sur la plateforme Parcoursup",
-                                              "Taux d’accès",
                                               "Part des terminales générales qui étaient en position de recevoir une proposition en phase principale",
                                               "Part des terminales technologiques qui étaient en position de recevoir une proposition en phase principale",
                                               "Part des terminales professionnelles qui étaient en position de recevoir une proposition en phase principale",
@@ -121,7 +120,8 @@ parcoursup2024 = parcoursup2024.rename(columns={"Statut de l’établissement de
                                "Dont effectif des admis néo bacheliers avec mention Bien au bac" : "nb_admis_bien",
                                "Dont effectif des admis néo bacheliers avec mention Très Bien au bac" : "nb_admis_tres_bien",
                                "Dont effectif des admis néo bacheliers avec mention Très Bien avec félicitations au bac" : "nb_admis_felicitations",
-                               "% d’admis dont filles":"nb_admis_filles"})
+                               "% d’admis dont filles":"nb_admis_filles",
+                               "Taux d’accès":"taux_acces"})
 
 # On regarde les profils des élèves qui ont une mobilité, notamment leur mention au bac
 
@@ -316,3 +316,37 @@ plt.savefig("boxplot_genre", dpi=300, bbox_inches="tight")
 #Peut être regarder avec les boursiers aussi
 
 # Sélectivité => taux d'accès 
+
+#On commence par remplacer la virgule par un point
+parcoursup2024["taux_acces_nettoye"]=parcoursup2024["taux_acces"].astype(str).str.replace(",",".")
+parcoursup2024["taux_acces_nettoye"]=pd.to_numeric(parcoursup2024["taux_acces_nettoye"], errors="coerce")
+
+#On cherche une corrélation entre le taux d'accès et la part de locaux
+correlation = parcoursup2024[["taux_acces_nettoye", "part_bac_ac"]].corr().iloc[0,1]
+print(f"--- Coefficient de correlation : {correlation:.2f} ---")
+
+plt.close("all")
+sns.scatterplot(
+    data=parcoursup2024,
+    x="taux_acces_nettoye",
+    y="part_bac_ac",
+    hue="statut_public_prive",
+    style="statut_public_prive",
+    alpha=0.6
+)
+sns.regplot(
+    data=parcoursup2024,
+    x="taux_acces_nettoye",
+    y="part_bac_ac",
+    scatter=False,
+    color="black",
+    line_kws={"linestyle": "--"}
+)
+plt.title(f"Lien entre sélectivité et ancrage local (corr : {correlation:.2f})")
+plt.xlabel("Taux d'accès (0% = très sélectif => 100% = ouvert à tous)")
+plt.ylabel("Pourcentage d'étudiants locaux")
+plt.legend(title="Statut")
+plt.grid(True, alpha=0.3)
+
+plt.savefig("correlation.png", dpi=300, bbox_inches="tight")
+
