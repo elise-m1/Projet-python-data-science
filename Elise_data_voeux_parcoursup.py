@@ -174,3 +174,30 @@ plt.xlabel("Part de mentions très bien et de félicitations")
 plt.ylabel("Type de filiere")
 
 plt.savefig("heatmap_filiere_niveau.png", dpi=300, bbox_inches="tight")
+
+#Que se passe-t-il si on exclut Paris, Créteil et Versaille
+province = parcoursup2024[~parcoursup2024["academie"].isin(["Paris", "Crétail", "Versailles"])]
+analyse_ext_province = province.groupby("niveau_formation")["part_bac_ac"].mean()
+print("--- En province, la part des locaux selon le niveau de la formation")
+print(analyse_ext_province)
+
+"""--- En province, la part des locaux selon le niveau de la formation
+niveau_formation
+Faible (0%)         74.536349
+Moyen (0-10%)       74.422953
+Bon (10-30%)        69.127513
+Excellent (>30%)    59.430958
+"""
+#Part des locaux est globalement plus importante
+
+#Regarder la dispersion dans des boxplots
+sns.boxplot(
+    data=parcoursup2024,
+    x="niveau_formation",
+    y="part_bac_ac"
+)
+plt.title("Boxplot représentant le nombre d'étudiants locaux selon le niveau de la formation (province)")
+plt.xlabel("Part de mention très bien ou de félicitation dans la formation")
+plt.ylabel("% d'étudiants locaux (venant de la même académie)")
+plt.grid(True, axis="y", alpha=0.3)
+plt.savefig("boxplot_province.png", dpi=300, bbox_inches="tight")
