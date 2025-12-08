@@ -202,3 +202,81 @@ plt.xlabel("Part de mention très bien ou de félicitation dans la formation")
 plt.ylabel("% d'étudiants locaux (venant de la même académie)")
 plt.grid(True, axis="y", alpha=0.3)
 plt.savefig("boxplot_province.png", dpi=300, bbox_inches="tight")
+
+
+#Analyse public/privé => statut de l'établissement
+
+#On regarde les différents statuts pour avoir seulement une différence entre public et privé
+print("---Catégories de statut ---")
+print(parcoursup2024["statut"].value_counts())
+
+#4 catégories
+"""---Catégories de statut ---
+statut
+Public                              11038
+Privé sous contrat d'association     1940
+Privé enseignement supérieur          986
+Privé hors contrat                    115
+"""
+
+#Simplification des différents statuts
+def simplification_statut(valeur):
+    if "public" in str(valeur).lower():
+        return "Public"
+    elif "privé" in str(valeur).lower():
+        return "Privé"
+    else:
+        return "Autre"
+parcoursup2024["statut_public_prive"] = parcoursup2024["statut"].apply(simplification_statut)
+
+print("\n--- Après simplification ---")
+print(parcoursup2024["statut_public_prive"].value_counts())
+
+"""
+statut_public_prive
+Public    11038
+Privé      3041
+"""
+
+#Quels critères pour étudier le public et le privé ?
+#La part d'élèves locaux
+#Le niveau des élèves (part de mentions très bien et de félicitations)
+
+#on regroupe selon public et privé
+analyse_statut = parcoursup2024.groupby("statut_public_prive").agg({
+    "part_bac_ac":"mean",
+    "tb_eleves": "mean",
+    "nb_admis": "sum"
+}).reset_index()
+
+analyse_statut = analyse_statut.rename(columns={
+    "part_bac_ac": "pourcentage d'étudiants locaux (moyenne)",
+    "tb_eleves" : "pourcentage de mention très bien et de félicitations",
+    "nb_admis" : "nombre total d'admis"
+})
+
+print(analyse_statut)
+
+plt.close("all")
+
+sns.boxplot(
+    data=parcoursup2024[parcoursup2024["statut_public_prive"].isin(["Public", "Privé"])],
+    x = "statut_public_prive",
+    y="part_bac_ac",
+    width=0.5
+)
+
+plt.title("Comparaison de la localité entre public et privé")
+plt.xlabel("Statut de la formation")
+plt.ylabel("Pourcentage d'étudiants issus de la même académie")
+plt.grid(axis="y", alpha=0.3)
+
+plt.savefig("boxplot_public_prive.png", dpi=300, bbox_inches="tight")
+
+# Filles/Garçons => dont effectif des candidates admises
+
+#Admis issus du même établissement => CPGE et BTS
+
+#Peut être regarder avec les boursiers aussi
+
+# Sélectivité => taux d'accès 
