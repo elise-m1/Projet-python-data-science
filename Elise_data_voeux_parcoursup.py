@@ -191,6 +191,7 @@ Excellent (>30%)    59.430958
 #Part des locaux est globalement plus importante
 
 #Regarder la dispersion dans des boxplots
+plt.close("all")
 sns.boxplot(
     data=parcoursup2024,
     x="niveau_formation",
