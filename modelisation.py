@@ -4,6 +4,15 @@ import numpy as np
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
 
+# Remarques générales sur la modélisation :
+#  - on fait des régressions linéaires, c'est des sciences sociales donc les R^2 sont
+#    pas ouf, c'est pas très grave, ce qui compte c'est que les coefficients soient significatifs
+#  - c'est des régressions non causales, on montre juste une corrélation, je pense pas qu'avec nos 
+#    données on ait de quoi montrer une causalité
+
+
+
+
 url_parcoursup2024 = "https://www.data.gouv.fr/api/1/datasets/r/1d916b7c-bd4c-4951-845a-70f7ad7c17db"
 parcoursup2024 = pd.read_csv(url_parcoursup2024, sep=";")
 
@@ -32,7 +41,6 @@ def drop_parcoursup(df): # suppprime les colonnes dont on a pas besoin
                         'Effectif des candidats néo bacheliers professionnels classés par l’établissement',
                         'Dont effectif des candidats boursiers néo bacheliers professionnels classés par l’établissement',
                         'Effectif des autres candidats classés par l’établissement',
-                        'Dont effectif des candidates admises',
                         "Dont effectif des admis ayant reçu leur proposition d’admission à l'ouverture de la procédure principale",
                         "Dont effectif des admis ayant reçu leur proposition d’admission avant le baccalauréat",
                         "Dont effectif des admis ayant reçu leur proposition d’admission avant la fin de la procédure principale",
@@ -118,6 +126,7 @@ def rename_parcoursup(df): # renomme les colonnes qu'on garde pour faciliter l'a
                             "Effectif des admis en phase complémentaire":"nb_admis_comp",
                             "Effectif des admis néo bacheliers":"nb_admis_bac",
                             "Effectif des admis néo bacheliers généraux":"nb_admis_bacg",
+                            'Dont effectif des candidates admises':"nb_admis_f",
                             "Dont effectif des admis issus de la même académie":"nb_admis_ac",
                             "Dont effectif des admis issus de la même académie (Paris/Créteil/Versailles réunies)":"nb_admis_ac_pcv",
                             "% d’admis néo bacheliers issus de la même académie":"part_bac_ac",
@@ -138,7 +147,7 @@ parcoursup2024["part_entrants"] = parcoursup2024["nb_entrants"] / parcoursup2024
 
 #parcoursup2024.dropna()
 Y = parcoursup2024[["part_entrants"]]
-
+# visiblement il y a des NaN, possiblement des formations avec 0 admis -> à vérifier
 
 parcoursup2024 = sm.add_constant(parcoursup2024) #ajout d'une colonne constante pour faire les regressions
 
@@ -198,4 +207,75 @@ results.rsquared
 results.pvalues
 # const    0.0
 # paris    0.0 -> coefficient significatif à 1%
+# dtype: float64
+
+# ----------------- Lille ----------------
+# on teste si le fait que la formation soit à Lille joue un rôle
+# c'est juste pour vérifier que c'est pas significatif, je pense pas que ce soit pertinent de
+# le mettre dans le notebook
+parcoursup2024["lille"] = 0
+parcoursup2024.loc[parcoursup2024["academie"] == "Lille","lille"] = 1
+
+X = parcoursup2024[['const', "lille"]]
+
+model = sm.OLS(Y, X, missing='drop')
+results = model.fit()
+results.params
+# const    48.441591
+# lille    -5.587874
+# dtype: float64
+results.rsquared
+# 0.0028806639776992604
+results.pvalues
+# const    0.000000e+00
+# lille    2.373457e-10
+# dtype: float64
+
+# ---------- Part de femmes dans la formation ---------------
+# on régresse sur la part de femmes admises, idéalement faudrait le faire sur la part
+# de l'année précedente car c'est l'information que les étudiants avaient au moment de
+# faire leur choix
+
+parcoursup2024["part_femmes"] = parcoursup2024["nb_admis_f"] / parcoursup2024["nb_admis"]
+
+X = parcoursup2024[['const', "part_femmes"]]
+
+model = sm.OLS(Y, X, missing='drop')
+results = model.fit()
+results.params
+# const          37.425020
+# part_femmes    21.003344 -> plus il y a de femmes, plus il y a d'entrants issus d'une autre
+#                             académie => les femmes partent plus loin pour leurs études ???
+# dtype: float64
+results.rsquared
+# 0.05423288919040925
+results.pvalues
+# const           0.000000e+00
+# part_femmes    1.041141e-170 -> coefficient significatif à 1%
+# dtype: float64
+
+
+
+# -------- Régression sur plusieurs variables ----------
+
+
+X = parcoursup2024[['const', "selec_b", "part_femmes", "paris", "lille"]]
+
+model = sm.OLS(Y, X, missing='drop')
+results = model.fit()
+print(results.params)
+# const          40.568450
+# selec_b        -3.938353
+# part_femmes    16.189131
+# paris          35.023012
+# lille          -2.322822
+# dtype: float64
+print(results.rsquared)
+# 0.17613669670997978
+print(results.pvalues)
+# const           0.000000e+00
+# selec_b         2.810674e-15
+# part_femmes    1.908268e-110
+# paris           0.000000e+00
+# lille           3.856399e-03
 # dtype: float64
