@@ -1,6 +1,6 @@
 import pandas as pd
-import numpy as np
-from sklearn.linear_model import LinearRegression
+# import numpy as np
+# from sklearn.linear_model import LinearRegression
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
 
@@ -131,12 +131,19 @@ def rename_parcoursup(df): # renomme les colonnes qu'on garde pour faciliter l'a
 parcoursup2024 = drop_parcoursup(parcoursup2024)
 parcoursup2024 = rename_parcoursup(parcoursup2024)
 
-# ajout d'une colonne constante pour pouvoir faire les regressions
-parcoursup2024["constante"] = 1
+# Création de la variable qu'on cherche à expliquer, la part d'entrants issus d'une autre académie 
+
+parcoursup2024["nb_entrants"] = parcoursup2024["nb_admis"] - parcoursup2024["nb_admis_ac"]
+parcoursup2024["part_entrants"] = parcoursup2024["nb_entrants"] / parcoursup2024["nb_admis"]
+Y = parcoursup2024["part_entrants"]
+
+print(Y.describe())
+
+# ---------- Sélectivité -----------------------
 
 # on crée une variable indicatrice de la sélectivité
-parcoursup2024["selec_bool"] = (parcoursup2024["selec"] == "formation sélective")
-parcoursup2024["selec_b"] = pd.to_numeric(parcoursup2024["selec_bool"])
+parcoursup2024["selec_b"] = 0
+parcoursup2024.loc[parcoursup2024["selec"] == "formation sélective","selec_b"] = 1
 
 """
 reg = LinearRegression()
@@ -148,9 +155,23 @@ R2 = model.score(X,Y) #1.9197839825957352e-05
 """
 # sklearn ne calcule pas les p-values, donc on va utiliser autrechose
 
-X = parcoursup2024["selec_b"]
-X = sm.add_constant(X)
-Y = parcoursup2024["part_bac_ac"]
+
+#X = parcoursup2024["selec_b"]
+#X = sm.add_constant(X)
+parcoursup2024 = sm.add_constant(parcoursup2024)
+X = parcoursup2024[['const', "selec_b"]]
+
+
 model = sm.OLS(Y, X)
 results = model.fit()
 print(results.params)
+# const      67.159348
+# selec_b     0.308194
+# dtype: float64
+print(results.pvalues)
+# const      0.00000
+# selec_b    0.60317 -> coefficient non significatif
+# dtype: float64
+
+# ----------------- Paris ----------------
+# on teste si le fait que la formation soit dans Paris
