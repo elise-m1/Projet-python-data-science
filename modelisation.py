@@ -1,5 +1,5 @@
 import pandas as pd
-# import numpy as np
+import numpy as np
 # from sklearn.linear_model import LinearRegression
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
@@ -134,10 +134,15 @@ parcoursup2024 = rename_parcoursup(parcoursup2024)
 # Création de la variable qu'on cherche à expliquer, la part d'entrants issus d'une autre académie 
 
 parcoursup2024["nb_entrants"] = parcoursup2024["nb_admis"] - parcoursup2024["nb_admis_ac"]
-parcoursup2024["part_entrants"] = parcoursup2024["nb_entrants"] / parcoursup2024["nb_admis"]
+parcoursup2024["part_entrants"] = parcoursup2024["nb_entrants"] / parcoursup2024["nb_admis"]*100
+
+parcoursup2024.dropna()
 Y = parcoursup2024["part_entrants"]
 
-print(Y.describe())
+
+
+parcoursup2024 = sm.add_constant(parcoursup2024) #ajout d'une colonne constante pour faire les regressions
+
 
 # ---------- Sélectivité -----------------------
 
@@ -158,20 +163,28 @@ R2 = model.score(X,Y) #1.9197839825957352e-05
 
 #X = parcoursup2024["selec_b"]
 #X = sm.add_constant(X)
-parcoursup2024 = sm.add_constant(parcoursup2024)
+
 X = parcoursup2024[['const', "selec_b"]]
 
+
+print(X.cov())
+model = sm.OLS(Y, X)
+results = model.fit()
+print(results.params)
+
+print(results.pvalues)
+
+
+# ----------------- Paris ----------------
+# on teste si le fait que la formation soit dans Paris joue un rôle
+parcoursup2024["paris"] = 0
+parcoursup2024.loc[parcoursup2024["academie"] == "Paris","paris"] = 1
+
+X = parcoursup2024[['const', "paris"]]
+
+print(X.cov())
 
 model = sm.OLS(Y, X)
 results = model.fit()
 print(results.params)
-# const      67.159348
-# selec_b     0.308194
-# dtype: float64
 print(results.pvalues)
-# const      0.00000
-# selec_b    0.60317 -> coefficient non significatif
-# dtype: float64
-
-# ----------------- Paris ----------------
-# on teste si le fait que la formation soit dans Paris
