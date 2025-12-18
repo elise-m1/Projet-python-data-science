@@ -136,9 +136,8 @@ parcoursup2024 = rename_parcoursup(parcoursup2024)
 parcoursup2024["nb_entrants"] = parcoursup2024["nb_admis"] - parcoursup2024["nb_admis_ac"]
 parcoursup2024["part_entrants"] = parcoursup2024["nb_entrants"] / parcoursup2024["nb_admis"]*100
 
-parcoursup2024.dropna()
-Y = parcoursup2024["part_entrants"]
-
+#parcoursup2024.dropna()
+Y = parcoursup2024[["part_entrants"]]
 
 
 parcoursup2024 = sm.add_constant(parcoursup2024) #ajout d'une colonne constante pour faire les regressions
@@ -167,24 +166,36 @@ R2 = model.score(X,Y) #1.9197839825957352e-05
 X = parcoursup2024[['const', "selec_b"]]
 
 
-print(X.cov())
-model = sm.OLS(Y, X)
+model = sm.OLS(Y, X, missing='drop')
 results = model.fit()
-print(results.params)
-
-print(results.pvalues)
-
+results.params
+# const      54.063682
+# selec_b    -7.778608 -> être une formation sélective diminue le nb d'entrants issus d'une autre
+#                         académie 
+# dtype: float64
+results.rsquared
+# 0.015332468741064864
+results.pvalues
+# const      0.000000e+00
+# selec_b    1.142956e-48 -> coefficient significatif à 1%
+# dtype: float64
 
 # ----------------- Paris ----------------
-# on teste si le fait que la formation soit dans Paris joue un rôle
+# on teste si le fait que la formation soit à Paris joue un rôle
 parcoursup2024["paris"] = 0
 parcoursup2024.loc[parcoursup2024["academie"] == "Paris","paris"] = 1
 
 X = parcoursup2024[['const', "paris"]]
 
-print(X.cov())
-
-model = sm.OLS(Y, X)
+model = sm.OLS(Y, X, missing='drop')
 results = model.fit()
-print(results.params)
-print(results.pvalues)
+results.params
+# const    45.381442
+# paris    37.569449 -> être dans paris augmente bcp le nb d'entrants issus d'une autre académie
+# dtype: float64
+results.rsquared
+# 0.13448989797577926
+results.pvalues
+# const    0.0
+# paris    0.0 -> coefficient significatif à 1%
+# dtype: float64
