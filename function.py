@@ -10,9 +10,9 @@ def simplification_statut(val):
     """
 
     statut = str(val).lower() #robustesse
-    if public in statut :
+    if "public" in statut :
         return "Public"
-    elif privé in statut :
+    elif "privé" in statut :
         return "Privé"
     else :
         return "Autre"
@@ -157,15 +157,17 @@ def enrichir_donnees(df) :
             errors="coerce"
         )
 
-    if "part_fille" in df.columns : 
+    if "part_filles" in df.columns : 
         df["categorie_genre"] = pd.cut(
-            df["part_fille"],
+            df["part_filles"],
             bins=[-1, 40, 60, 101],
             labels=["Dominante masculine", "Mixte", "Dominante féminine"]
         )
 
-    if {"nb_admis_tres_bien", "nb_admis_felicitation", "nb_admis_bac"}.issubset(df.columns):
-        df["tb_eleves"] = ((df["nb_admis_tres_bien"].fillna(0) + df["nb_admis_felicitation"].fillna(0))/ df["nb_admis_bac"])*100
+    if {"nb_admis_tres_bien", "nb_admis_felicitations", "nb_admis_bac"}.issubset(df.columns):
+        df["tb_eleves"] = ((df["nb_admis_tres_bien"].fillna(0) + df["nb_admis_felicitations"].fillna(0))/ df["nb_admis_bac"])*100
+
+    return df
 
 
 def charger_donnees(url):
