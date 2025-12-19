@@ -23,7 +23,8 @@ def nettoyage_base(df):
     Supprime les colonnes unutiles et renomme les variables
     """
 
-    colonnes_sup = [
+    #Suppression des colonnes
+    colonnes_suppr = [
         "Session",
         'Filière de formation.1',
         'Filière de formation détaillée bis',
@@ -99,4 +100,47 @@ def nettoyage_base(df):
         "Part des terminales professionnelles qui étaient en position de recevoir une proposition en phase principale",
         "etablissement_id_paysage",
         "composante_id_paysage"
-    ]    
+    ]
+    df = df.drop(columns = [c for c in colonnes_suppr if c in df.columns], errors = "ignore")
+
+    #Renommage
+    dict_noms = {
+        "Statut de l’établissement de la filière de formation (public, privé…)": "statut",
+        "Code UAI de l'établissement": "code_UAI", #identifie chaque établissement de manière unique
+        "Code départemental de l’établissement": "code_dep",
+        "Département de l’établissement": "dep",
+        "Région de l’établissement": "region",
+        "Académie de l’établissement": "academie",
+        "Commune de l’établissement": "commune",
+        "Filière de formation": "filiere",
+        "Sélectivité": "selec",
+        "Filière de formation très agrégée": "filiere_agr",
+        "Filière de formation détaillée": "filiere_det",
+        "Coordonnées GPS de la formation": "coord_GPS",
+        "Capacité de l’établissement par formation": "nb_places",
+        "Effectif total des candidats pour une formation": "nb_can_tot",
+        "Effectif total des candidats en phase complémentaire": "nb_can_cmp",
+        "Effectif total des candidats classés par l’établissement en phase principale":"nb_candidats_classes_prin",
+        "Effectif des candidats classés par l’établissement en phase complémentaire":"nb_candidats_classes_comp",
+        "Effectif total des candidats ayant reçu une proposition d’admission de la part de l’établissement":"nb_candidats_prop",
+        "Effectif total des candidats ayant accepté la proposition de l’établissement (admis)":"nb_admis",
+        "Effectif des admis en phase principale":"nb_admis_prin",
+        "Effectif des admis en phase complémentaire":"nb_admis_comp",
+        "Effectif des admis néo bacheliers":"nb_admis_bac",
+        "Effectif des admis néo bacheliers généraux":"nb_admis_bacg",
+        "Dont effectif des admis issus de la même académie":"nb_admis_ac",
+        "Dont effectif des admis issus de la même académie (Paris/Créteil/Versailles réunies)":"nb_admis_ac_pcv",
+        "% d’admis néo bacheliers issus de la même académie":"part_bac_ac",
+        "% d’admis néo bacheliers issus de la même académie (Paris/Créteil/Versailles réunies)":"part_bac_ac_pcv",
+        "% d’admis néo bacheliers généraux":"part_bacg",
+        "list_com":"appel", #appel commun à plusieurs formations ou propre à cette formation
+        "tri":"type_etablissement", #lycee, univ ou autre
+        "cod_aff_form":"code_form",
+        "Dont effectif des admis néo bacheliers sans mention au bac" : "nb_admis_sans_mention",
+        "Dont effectif des admis néo bacheliers avec mention Assez Bien au bac" : "nb_admis_assez_bien",
+        "Dont effectif des admis néo bacheliers avec mention Bien au bac" : "nb_admis_bien",
+        "Dont effectif des admis néo bacheliers avec mention Très Bien au bac" : "nb_admis_tres_bien",
+        "Dont effectif des admis néo bacheliers avec mention Très Bien avec félicitations au bac" : "nb_admis_felicitations"
+        }
+
+    return df.rename(columns=dict_noms)
