@@ -167,3 +167,17 @@ def enrichir_donnees(df) :
     if {"nb_admis_tres_bien", "nb_admis_felicitation", "nb_admis_bac"}.issubset(df.columns):
         df["tb_eleves"] = ((df["nb_admis_tres_bien"].fillna(0) + df["nb_admis_felicitation"].fillna(0))/ df["nb_admis_bac"])*100
 
+
+def charger_donnees(url):
+    """
+    Fonction exécutant les trois fonctions précédentes afin d'avoir directement accès à une base complète et nettoyée
+    """
+
+    print("Chargement du fichier...")
+    df = pd.read_csv(url, sep=";") #permet de charger le csv
+    df = nettoyage_base(df)
+    df = enrichir_donnees(df)
+
+    print(f"Succès {len(df)} lignes prêtes")
+    return df
+
