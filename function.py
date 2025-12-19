@@ -144,3 +144,26 @@ def nettoyage_base(df):
         }
 
     return df.rename(columns=dict_noms)
+
+def enrichir_donnees(df) :
+    """"
+    Création de nouvelles variables pour effectuer les analyses
+    """
+    
+    if "taux_acces" in df.columns : 
+        #remplacement de la virgule et conversion en numérique
+        df["taux_acces_clean"] = pd.to_numeric(
+            df["taux_acces"].astype(str).str.replace(",", "."),
+            errors="coerce"
+        )
+
+    if "part_fille" in df.columns : 
+        df["categorie_genre"] = pd.cut(
+            df["part_fille"],
+            bins=[-1, 40, 60, 101],
+            labels=["Dominante masculine", "Mixte", "Dominante féminine"]
+        )
+
+    if {"nb_admis_tres_bien", "nb_admis_felicitation", "nb_admis_bac"}.issubset(df.columns):
+        df["tb_eleves"] = ((df["nb_admis_tres_bien"].fillna(0) + df["nb_admis_felicitation"].fillna(0))/ df["nb_admis_bac"])*100
+
