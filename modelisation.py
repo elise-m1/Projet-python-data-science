@@ -235,6 +235,8 @@ results.pvalues
 # on régresse sur la part de femmes admises, idéalement faudrait le faire sur la part
 # de l'année précedente car c'est l'information que les étudiants avaient au moment de
 # faire leur choix
+# rq : en fait c'est pas si grave, ça serait un pb si on voulait faire une regression causale
+# mais c'est pas le cas donc ça va
 
 parcoursup2024["part_femmes"] = parcoursup2024["nb_admis_f"] / parcoursup2024["nb_admis"]
 
@@ -263,19 +265,38 @@ X = parcoursup2024[['const', "selec_b", "part_femmes", "paris", "lille"]]
 
 model = sm.OLS(Y, X, missing='drop')
 results = model.fit()
-print(results.params)
+results.params
 # const          40.568450
 # selec_b        -3.938353
 # part_femmes    16.189131
 # paris          35.023012
 # lille          -2.322822
 # dtype: float64
-print(results.rsquared)
+results.rsquared
 # 0.17613669670997978
-print(results.pvalues)
+results.pvalues
 # const           0.000000e+00
 # selec_b         2.810674e-15
 # part_femmes    1.908268e-110
 # paris           0.000000e+00
 # lille           3.856399e-03
 # dtype: float64
+
+# ---------- Régression sur le nb d'admis ----------------------------
+
+
+X = parcoursup2024[['const', "nb_admis"]]
+
+model = sm.OLS(Y, X, missing='drop')
+results = model.fit()
+print(results.params)
+# const       47.765668
+# nb_admis     0.006246  # coeff très faible, effet pas très important
+# dtype: float64
+print(results.rsquared)
+# 0.0003272245125022222
+print(results.pvalues)
+# const       0.000000
+# nb_admis    0.032862  -> coefficient significatif à 5% 
+# dtype: float64
+
