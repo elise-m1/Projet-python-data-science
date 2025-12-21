@@ -167,6 +167,12 @@ def enrichir_donnees(df) :
     if {"nb_admis_tres_bien", "nb_admis_felicitations", "nb_admis_bac"}.issubset(df.columns):
         df["tb_eleves"] = ((df["nb_admis_tres_bien"].fillna(0) + df["nb_admis_felicitations"].fillna(0))/ df["nb_admis_bac"])*100
 
+        df["niveau_formation"] = pd.cut(
+            df["tb_eleves"],
+            bins=[-1,0, 10, 30, 1000],
+            labels=["Faible (0%)", "Moyen (0-10%)", "Bon (10-30%)", "Très Bon (>30%)"]
+        )
+
     return df
 
 
