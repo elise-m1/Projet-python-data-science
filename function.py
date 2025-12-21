@@ -12,7 +12,7 @@ def simplification_statut(val):
     statut = str(val).lower() #robustesse
     if "public" in statut :
         return "Public"
-    elif "privé" in statut :
+    elif "priv" in statut :
         return "Privé"
     else :
         return "Autre"
@@ -140,7 +140,8 @@ def nettoyage_base(df):
         "Dont effectif des admis néo bacheliers avec mention Assez Bien au bac" : "nb_admis_assez_bien",
         "Dont effectif des admis néo bacheliers avec mention Bien au bac" : "nb_admis_bien",
         "Dont effectif des admis néo bacheliers avec mention Très Bien au bac" : "nb_admis_tres_bien",
-        "Dont effectif des admis néo bacheliers avec mention Très Bien avec félicitations au bac" : "nb_admis_felicitations"
+        "Dont effectif des admis néo bacheliers avec mention Très Bien avec félicitations au bac" : "nb_admis_felicitations",
+        "% d’admis dont filles" : "part_filles"
         }
 
     return df.rename(columns=dict_noms)
@@ -172,6 +173,9 @@ def enrichir_donnees(df) :
             bins=[-1,0, 10, 30, 1000],
             labels=["Faible (0%)", "Moyen (0-10%)", "Bon (10-30%)", "Très Bon (>30%)"]
         )
+
+    if "statut" in df.columns :
+        df["statut_public_prive"] = df["statut"].apply(simplification_statut)
 
     return df
 
