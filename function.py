@@ -3,6 +3,7 @@
 #Importation des librairies qui vont nous servir
 import numpy as np
 import pandas as pd
+import statsmodels.api as sm
 
 def simplification_statut(val):
     """
@@ -194,3 +195,52 @@ def charger_donnees(url):
     print(f"Succès {len(df)} lignes prêtes")
     return df
 
+def afficher_modelisation(df):
+    """
+    """
+
+    df = df.copy()
+
+    if "nb_admis" in df.columns and "nb_admis_ac" in df.columns :
+        df["nb_entrants"] = df["nb_admis"] - df["nb_admis_ac"]
+        df["part_entrants"]=(df["nb_entrants"] / df["nb_admis"])*100
+    else :
+        df["part_entrants"]= 100 - df["part_bac_ac"]
+
+    #selectivité
+    df["selec_b"]=0
+    if "selec" in df.columns:
+        df.loc[df["select"]=="formation sélective", "selec_b"] = 1
+    
+    #Géographie 
+    df[paris]=0
+    if "academie" in df.columns:
+        df.loc[df["academie"]=="Paris","paris"]=1
+
+    #Genre
+    if "nb_admis_f" in df.columns and "nb_admis" in df.columns:
+        df["part_femmes"] = df["nb_admis_f"] / df["nb_admis"]
+    elif "part_filles" in df.columns:
+        # Si la colonne effectif n'est pas là, on prend le pourcentage / 100
+        df["part_femmes"] = df["part_filles"] / 100
+    else:
+        df["part_femmes"] = 0 # Sécurité
+
+    variables_explicatives = ["selec_b", "part_femmes", "paris", "lille"]
+
+    # Nettoyage des lignes contenant des NaN (sinon la régression plante)
+    data_reg = df[variables_explicatives + ["part_entrants"]].dropna()
+    
+    Y = data_reg["part_entrants"]
+    X = data_reg[variables_explicatives]
+    
+    # Ajout de la constante (obligatoire pour statsmodels)
+    X = sm.add_constant(X)
+    
+    # Modélisation
+    model = sm.OLS(Y, X)
+    results = model.fit()
+    
+    print(results.summary())
+    
+    return results
