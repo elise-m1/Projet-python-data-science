@@ -141,7 +141,8 @@ def nettoyage_base(df):
         "Dont effectif des admis néo bacheliers avec mention Bien au bac" : "nb_admis_bien",
         "Dont effectif des admis néo bacheliers avec mention Très Bien au bac" : "nb_admis_tres_bien",
         "Dont effectif des admis néo bacheliers avec mention Très Bien avec félicitations au bac" : "nb_admis_felicitations",
-        "% d’admis dont filles" : "part_filles"
+        "% d’admis dont filles" : "part_filles",
+        "Taux d’accès":"taux_acces"
         }
 
     return df.rename(columns=dict_noms)
