@@ -204,6 +204,23 @@ results.pvalues
 # selec_b    1.142956e-48 -> coefficient significatif à 1%
 # dtype: float64
 
+# Avec Y_pcv
+
+X = parcoursup2024[['const', "selec_b"]]
+model = sm.OLS(Y_pcv, X, missing='drop')
+results = model.fit()
+# print("Sélectivité")
+results.params
+# const      48.669630
+# selec_b    -6.813565
+# dtype: float64
+results.rsquared
+# 0.012708295496910549
+results.pvalues
+# const      0.000000e+00
+# selec_b    4.762516e-41 -> coefficient significatif à 1%
+# dtype: float64
+
 # ----------------- Formation privée ou non ---------------------------------------
 
 parcoursup2024["privé"] = 0
@@ -215,15 +232,32 @@ X = parcoursup2024[['const', "privé"]]
 
 model = sm.OLS(Y, X, missing='drop')
 results = model.fit()
-print(results.params)
+results.params
 # const    46.997787
 # privé     2.297553
 # dtype: float64
-print(results.rsquared)
+results.rsquared
 # 0.0012539818315291384
-print(results.pvalues)
+results.pvalues
 # const    0.000000
 # privé    0.000026
+# dtype: float64
+
+# Avec Y_pcv
+
+X = parcoursup2024[['const', "privé"]]
+model = sm.OLS(Y_pcv, X, missing='drop')
+results = model.fit()
+#print("Privé ou public")
+results.params
+# const    42.960289
+# privé     2.030672
+# dtype: float64
+results.rsquared
+# 0.0010912869317789564
+results.pvalues
+# const    0.000000
+# privé    0.000088
 # dtype: float64
 
 # ----------------- Paris ----------------
@@ -245,6 +279,7 @@ results.pvalues
 # const    0.0
 # paris    0.0 -> coefficient significatif à 1%
 # dtype: float64
+
 
 # ----------------- Lille ----------------
 # on teste si le fait que la formation soit à Lille joue un rôle
@@ -295,6 +330,22 @@ results.pvalues
 # dtype: float64
 
 
+# Avec Y_pcv
+
+X = parcoursup2024[['const', "part_femmes"]]
+model = sm.OLS(Y_pcv, X, missing='drop')
+results = model.fit()
+# print("part de femmes")
+results.params
+# const          34.404845
+# part_femmes    18.783875
+# dtype: float64
+results.rsquared
+# 0.048192042392423584
+results.pvalues
+# const           0.000000e+00
+# part_femmes    1.893585e-151
+# dtype: float64
 
 # -------- Régression sur plusieurs variables ----------
 
@@ -337,6 +388,24 @@ results.pvalues
 # const       0.000000
 # nb_admis    0.032862  -> coefficient significatif à 5% 
 # dtype: float64
+
+# Avec Y_pcv
+
+X = parcoursup2024[['const', "nb_admis"]]
+
+model = sm.OLS(Y_pcv, X, missing='drop')
+results = model.fit()
+results.params
+# const       43.489069
+# nb_admis    -0.001954
+# dtype: float64
+results.rsquared
+# 3.4498013420480866e-05
+results.pvalues
+# const       0.000000
+# nb_admis    0.485888 -> coefficient non significatif
+# dtype: float64
+
 
 # ---------- def d'une fonction pour faire les régressions afin de simplifier le code ------
 
