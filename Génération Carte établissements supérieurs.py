@@ -3,53 +3,47 @@ import geopandas as gpd
 from shapely.geometry import Point
 import matplotlib.pyplot as plt
 
-# --- 1. Préparation des données d'implantations ---
-file_name = "fr-esr-implantations_etablissements_d_enseignement_superieur_publics (2).csv"
-df = pd.read_csv(file_name)
+# 1. Chargement du fichier CSV
+file_path = 'fr-esr-implantations_etablissements_d_enseignement_superieur_publics.csv'
+df = pd.read_csv(file_path, sep=';')
 
+# 2. Préparation des données
+# On supprime les lignes sans coordonnées
+df = df.dropna(subset=['Géolocalisation'])
+# On sépare la colonne 'Géolocalisation' (ex: "48.85, 2.35") en deux colonnes numériques
+df[['lat', 'lon']] = df['Géolocalisation'].str.split(',', expand=True).astype(float)
 
-# Nettoyage et conversion des coordonnées
-df_geo = df.dropna(subset=['Géolocalisation']).copy()
-df_geo[['latitude', 'longitude']] = df_geo['Géolocalisation'].str.split(', ', expand=True)
-df_geo['latitude'] = pd.to_numeric(df_geo['latitude'], errors='coerce')
-df_geo['longitude'] = pd.to_numeric(df_geo['longitude'], errors='coerce')
-df_geo.dropna(subset=['latitude', 'longitude'], inplace=True)
+# 3. Création du GeoDataFrame
+# Le format GeoJSON/GeoPandas utilise l'ordre (Longitude, Latitude)
+geometry = [Point(xy) for xy in zip(df['lon'], df['lat'])]
+gdf = gpd.GeoDataFrame(df, geometry=geometry, crs="EPSG:4326")
 
-geometry = [Point(xy) for xy in zip(df_geo['longitude'], df_geo['latitude'])]
-gdf = gpd.GeoDataFrame(df_geo, geometry=geometry, crs="EPSG:4326")
+# 4. Filtrage pour la France métropolitaine (pour une meilleure visibilité)
+# On limite aux longitudes entre -5 et 10 et latitudes entre 41 et 52
+gdf_metropole = gdf[(gdf['lon'] > -5) & (gdf['lon'] < 10) & (gdf['lat'] > 41) & (gdf['lat'] < 52)]
 
-# Filtrage pour la visualisation (Top 10 Régions)
-top_regions = gdf['Région'].value_counts().head(10).index.tolist()
-gdf_plot = gdf[gdf['Région'].isin(top_regions)].copy()
-gdf_plot['Région'] = gdf_plot['Région'].astype('category')
+# 5. Génération de la carte
+fig, ax = plt.subplots(figsize=(12, 12))
 
-# --- 2. Génération de la carte ---
-fig, ax = plt.subplots(1, 1, figsize=(15, 15))
+# Affichage des points
+# La couleur et la transparence (alpha) permettent de voir les zones de forte densité (ex: Paris, Lyon)
+gdf_metropole.plot(ax=ax, 
+                   markersize=12, 
+                   color='#0055A4', # Bleu institutionnel
+                   alpha=0.5, 
+                   edgecolor='white', 
+                   linewidth=0.3,
+                   label='Établissements ESR')
 
-# TRACÉ DE LA FRONTIÈRE FRANÇAISE (utilise le jeu de données GeoPandas 'naturalearth_lowres')
-try:
-    world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
-    france_border = world[world['name'] == 'France']
-    
-    # Tracé de la frontière en fond
-    france_border.plot(ax=ax, color='lightgray', edgecolor='black', linewidth=0.7, alpha=0.5)
-except Exception as e:
-    # Ce bloc sera exécuté ici en raison de l'erreur fiona
-    print(f"La frontière n'a pas pu être tracée dans cet environnement. Erreur: {e}")
+# Habillage de la carte
+plt.title("Carte des implantations de l'enseignement supérieur public", fontsize=16, fontweight='bold')
+plt.xlabel("Longitude")
+plt.ylabel("Latitude")
+plt.legend(loc='upper left')
+plt.grid(True, linestyle='--', alpha=0.3)
 
+# Sauvegarde de l'image
+plt.savefig('carte_esr_geopandas.png', dpi=300, bbox_inches='tight')
+plt.show()
 
-# TRACÉ DES POINTS (IMPLANTATIONS COLORÉES)
-gdf_plot.plot(column='Région', ax=ax, legend=True,
-              markersize=5, cmap='tab20', alpha=0.8,
-              legend_kwds={'loc': 'lower left', 'title': 'Région (Top 10)', 'fontsize': 10})
-
-# 3. Définir les limites et les titres
-ax.set_xlim(-5.5, 9.5)
-ax.set_ylim(41, 51)
-ax.set_title("Implantations des Établissements d'Enseignement Supérieur Publics par Région (avec Frontière)", fontsize=16)
-ax.set_xlabel("Longitude")
-ax.set_ylabel("Latitude")
-
-# Sauvegarder la figure
-plt.savefig("france_esr_map_final.png")
-plt.show() # Pour afficher le résultat
+print("La carte a été générée : carte_esr_geopandas.png")
