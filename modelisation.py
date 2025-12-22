@@ -204,6 +204,28 @@ results.pvalues
 # selec_b    1.142956e-48 -> coefficient significatif à 1%
 # dtype: float64
 
+# ----------------- Formation privée ou non ---------------------------------------
+
+parcoursup2024["privé"] = 0
+parcoursup2024.loc[parcoursup2024["statut"] == "Privé enseignement supérieur", "privé"] = 1
+parcoursup2024.loc[parcoursup2024["statut"] == "Privé hors contrat", "privé"] = 1
+parcoursup2024.loc[parcoursup2024["statut"] == "Privé sous contrat d'association", "privé"] = 1
+
+X = parcoursup2024[['const', "privé"]]
+
+model = sm.OLS(Y, X, missing='drop')
+results = model.fit()
+print(results.params)
+# const    46.997787
+# privé     2.297553
+# dtype: float64
+print(results.rsquared)
+# 0.0012539818315291384
+print(results.pvalues)
+# const    0.000000
+# privé    0.000026
+# dtype: float64
+
 # ----------------- Paris ----------------
 # on teste si le fait que la formation soit à Paris joue un rôle
 parcoursup2024["paris"] = 0
@@ -247,6 +269,7 @@ results.pvalues
 # dtype: float64
 
 # ---------- Part de femmes dans la formation ---------------
+
 # on régresse sur la part de femmes admises, idéalement faudrait le faire sur la part
 # de l'année précedente car c'est l'information que les étudiants avaient au moment de
 # faire leur choix
@@ -304,13 +327,13 @@ X = parcoursup2024[['const', "nb_admis"]]
 
 model = sm.OLS(Y, X, missing='drop')
 results = model.fit()
-print(results.params)
+results.params
 # const       47.765668
 # nb_admis     0.006246  # coeff très faible, effet pas très important
 # dtype: float64
-print(results.rsquared)
+results.rsquared
 # 0.0003272245125022222
-print(results.pvalues)
+results.pvalues
 # const       0.000000
 # nb_admis    0.032862  -> coefficient significatif à 5% 
 # dtype: float64
