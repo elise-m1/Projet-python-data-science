@@ -305,7 +305,8 @@ print(results.pvalues)
 
 def regression(data, x_col, y_col):
     """
-    Effectue une régression simple par la méthode des moindres carrés ordinaires et affiche ...
+    Effectue une régression simple par la méthode des moindres carrés ordinaires et affiche 
+    les coefficients obtenus, le r2 et les p-valeurs
     data (df) = les données sur lesquelles on fait la régression
     x_col (str) = la variable sur laquelle on fait la régression
     y_col (str)= la variable qu'on cherche à expliquer par la régression
@@ -315,8 +316,27 @@ def regression(data, x_col, y_col):
     Y = data[y_col]
     model = sm.OLS(Y, X, missing='drop')
     results = model.fit()
+    coeffs = results.params
+    std = results.bse
+    p = results.pvalues
     print("Les coefficients de la régression sont :")
-    print(results.params)
-    print("Le R2 obtenu est :",results.rsquared)
+    print(f"constante : {coeffs[0]:.3f} +/- {std[0]:.3f}")
+    print(f"{x_col} : {coeffs[1]:.3f} +/- {std[1]:.3f}")
+    print(f"Le R2 obtenu est {results.rsquared:.3f}.")
     print("Les p-valeurs sont :")
-    print(results.pvalues)
+    print(f"constante : {p[0]:.3f}")
+    print(f"{x_col} : {p[0]:.3f}")
+
+def visualisation_reg(data, x_col, y_col):
+    """
+    Effectue une régression simple par la méthode des moindres carrés ordinaires et
+    affiche le graphique correspondant
+    data (df) = les données sur lesquelles on fait la régression
+    x_col (str) = la variable sur laquelle on fait la régression
+    y_col (str)= la variable qu'on cherche à expliquer par la régression
+    """
+    data = sm.add_constant(data)
+    X = data[['const', x_col]]
+    Y = data[y_col]
+    model = sm.OLS(Y, X, missing='drop')
+    results = model.fit()
