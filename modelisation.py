@@ -300,3 +300,23 @@ print(results.pvalues)
 # nb_admis    0.032862  -> coefficient significatif à 5% 
 # dtype: float64
 
+# ---------- def d'une fonction pour faire les régressions et simplifier le code ------
+
+
+def regression(data, x_col, y_col):
+    """
+    Effectue une régression simple par la méthode des moindres carrés ordinaires et affiche ...
+    data (df) = les données sur lesquelles on fait la régression
+    x_col (str) = la variable sur laquelle on fait la régression
+    y_col (str)= la variable qu'on cherche à expliquer par la régression
+    """
+    data = sm.add_constant(data)
+    X = data[['const', x_col]]
+    Y = data[y_col]
+    model = sm.OLS(Y, X, missing='drop')
+    results = model.fit()
+    print("Les coefficients de la régression sont :")
+    print(results.params)
+    print("Le R2 obtenu est :",results.rsquared)
+    print("Les p-valeurs sont :")
+    print(results.pvalues)
