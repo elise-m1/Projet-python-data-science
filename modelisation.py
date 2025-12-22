@@ -144,19 +144,34 @@ parcoursup2024 = rename_parcoursup(parcoursup2024)
 
 parcoursup2024["nb_entrants"] = parcoursup2024["nb_admis"] - parcoursup2024["nb_admis_ac"]
 parcoursup2024["part_entrants"] = parcoursup2024["nb_entrants"] / parcoursup2024["nb_admis"]*100
-
-#parcoursup2024.dropna()
+parcoursup2024.loc[parcoursup2024["nb_admis"] == 0, "part_entrants"] = 0 # pour les formations avec aucun admis
+                                                                         # on fixe arbitrairement le taux d'entrants à 0
+                                                                         # pour éviter d'avoir des NaN
+# rq = on peut aussi choisir de supprimer complétement ces formations, à voir
 Y = parcoursup2024[["part_entrants"]]
-# visiblement il y a des NaN, possiblement des formations avec 0 admis -> à vérifier
+
 
 parcoursup2024 = sm.add_constant(parcoursup2024) #ajout d'une colonne constante pour faire les regressions
 
+# Regroupement des académies de Paris, Créteil et Versailles
+parcoursup2024["academie_pcv"] = parcoursup2024["academie"]
+parcoursup2024["academie_pcv"] = parcoursup2024["academie"].replace(
+    ["Paris", "Créteil", "Versailles"], "Paris-Créteil-Versailles")
+
+# Création d'un autre Y correspondant à ce nouveau taux d'entrants
+parcoursup2024["nb_entrants_pcv"] = parcoursup2024["nb_admis"] - parcoursup2024["nb_admis_ac_pcv"]
+parcoursup2024["part_entrants_pcv"] = parcoursup2024["nb_entrants_pcv"] / parcoursup2024["nb_admis"]*100
+parcoursup2024.loc[parcoursup2024["nb_admis"] == 0, "part_entrants_pcv"] = 0 # pour les formations avec aucun admis
+                                                                         # on fixe arbitrairement le taux d'entrants à 0
+                                                                         # pour éviter d'avoir des NaN
+# rq = on peut aussi choisir de supprimer complétement ces formations, à voir
+Y_pcv = parcoursup2024[["part_entrants_pcv"]]
 
 # ---------- Sélectivité -----------------------
 
 # on crée une variable indicatrice de la sélectivité
 parcoursup2024["selec_b"] = 0
-parcoursup2024.loc[parcoursup2024["selec"] == "formation sélective","selec_b"] = 1
+parcoursup2024.loc[parcoursup2024["selec"] == "formation sélective", "selec_b"] = 1
 
 """
 reg = LinearRegression()
@@ -300,7 +315,7 @@ print(results.pvalues)
 # nb_admis    0.032862  -> coefficient significatif à 5% 
 # dtype: float64
 
-# ---------- def d'une fonction pour faire les régressions et simplifier le code ------
+# ---------- def d'une fonction pour faire les régressions afin de simplifier le code ------
 
 
 def regression(data, x_col, y_col):
