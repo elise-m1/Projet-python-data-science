@@ -322,7 +322,7 @@ def regression(data, x_col, y_col):
     print("Les coefficients de la régression sont :")
     print(f"constante : {coeffs[0]:.3f} +/- {std[0]:.3f}")
     print(f"{x_col} : {coeffs[1]:.3f} +/- {std[1]:.3f}")
-    print(f"Le R2 obtenu est {results.rsquared:.3f}.")
+    print(f"Le R^2 obtenu est {results.rsquared:.3f}.")
     print("Les p-valeurs sont :")
     print(f"constante : {p[0]:.3f}")
     print(f"{x_col} : {p[0]:.3f}")
@@ -340,3 +340,13 @@ def visualisation_reg(data, x_col, y_col):
     Y = data[y_col]
     model = sm.OLS(Y, X, missing='drop')
     results = model.fit()
+    coeffs = results.params
+    X_reg = data[x_col]
+    Y_reg = coeffs[0] + coeffs[1] * X_reg
+    plt.figure(figsize=(12, 10))
+    plt.plot(X_reg, Y, 'o')
+    plt.plot(X_reg, Y_reg, '-')
+    plt.xlabel(x_col)
+    plt.ylabel(y_col)
+    plt.title(f"Régression simple de {y_col} sur {x_col}")
+    plt.show()
