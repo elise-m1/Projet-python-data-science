@@ -136,6 +136,11 @@ def rename_parcoursup(df): # renomme les colonnes qu'on garde pour faciliter l'a
 parcoursup2024 = drop_parcoursup(parcoursup2024)
 parcoursup2024 = rename_parcoursup(parcoursup2024)
 
+# pour la Corse, code_dep est vide donc on fixe une valeur :
+parcoursup2024.loc[parcoursup2024["dep"] == "Haute-Corse", "code_dep"] = 100
+parcoursup2024.loc[parcoursup2024["dep"] == "Corse-du-Sud", "code_dep"] = 101
+
+
 # Création de la variable qu'on cherche à expliquer, la part d'entrants issus d'une autre académie 
 
 parcoursup2024["nb_entrants"] = parcoursup2024["nb_admis"] - parcoursup2024["nb_admis_ac"]
@@ -186,34 +191,57 @@ Annee = pd.Series(Annee)
 Pop = pd.Series(Pop)
 pop_dep = pd.DataFrame(zip(Geo, Annee, Pop), columns=['Niveau géographique', 'Année', 'Population'])
 
-pop_dep['Département'] = pop_dep['Niveau géographique'].apply(lambda x : x[len(x)-2:len(x)])
+# fonction pour convertir 'Niveau géographique' en le numéro du département
+def conversion(chaine):
+    n = len(chaine)
+    if n == 12: #départements d'outre-mer
+        return float(chaine[n-3:n])
+    elif chaine[n-2:n] == "2A": #haute-corse
+        return 100.0
+    elif chaine[n-2:n] == "2B": #corse du sud
+        return 101.0
+    else:
+        return float(chaine[n-2:n])
+
+
+pop_dep['Département'] = pop_dep['Niveau géographique'].apply(conversion)
 
 # ----------------- Merge des deux bases ---------------------------
-print(parcoursup2024["code_dep"].dtype)
-print(pop_dep["Département"].dtype)
-print(pop_dep['Niveau géographique'].dtype)
-# parcoursup2024 = parcoursup2024.merge(pop_dep,
-#                                     left_on="code_dep", right_on="Département", how='left')
 
-#print(parcoursup2024[['code_UAI','dep',"Département","Population"]].head(2))
+parcoursup2024 = parcoursup2024.merge(pop_dep,
+                                      left_on="code_dep", right_on="Département", how='left')
+
 
 # ------------------- Régression ---------------------------------------
-"""
+
 # Avec Y
 X = parcoursup2024[['const', "Population"]]
 model = sm.OLS(Y, X, missing='drop')
 results = model.fit()
 print("paris, créteil et versailles séparées")
-print(results.params)
-print(results.rsquared)
-print(results.pvalues)
+results.params
+# const         38.474381
+# Population     0.000008
+# dtype: float64
+results.rsquared
+# 0.037787996801807666
+results.pvalues
+# const          0.000000e+00
+# Population    3.851574e-119
+# dtype: float64
 
 # Avec Y_pcv
 X = parcoursup2024[['const', "Population"]]
 model = sm.OLS(Y_pcv, X, missing='drop')
 results = model.fit()
 print("paris, créteil et versailles regroupées")
-print(results.params)
-print(results.rsquared)
-print(results.pvalues)
-"""
+results.params
+# const         41.903216
+# Population     0.000001
+# dtype: float64
+results.rsquared
+# 0.0012754667968392086
+results.pvalues
+# const         0.000000
+# Population    0.000024
+# dtype: float64
