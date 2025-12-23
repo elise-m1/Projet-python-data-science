@@ -407,6 +407,50 @@ results.pvalues
 # dtype: float64
 
 
+# ---------- Régression sur le log du nb d'admis ----------------------------
+
+
+parcoursup2024["log_admis"] = parcoursup2024["nb_admis"].apply(np.log)
+# on se débarrasse des formations avec 0 admis
+parcoursup2024.loc[parcoursup2024["nb_admis"] == 0, "log_admis"] = np.nan 
+X = parcoursup2024[['const', "log_admis"]]
+
+model = sm.OLS(Y, X, missing='drop')
+results = model.fit()
+
+print("paris, créteil et versailles séparées")
+print(results.params)
+# const        48.481451
+# log_admis    -0.129970
+# dtype: float64
+print(results.rsquared)
+# 2.6166065853039377e-05
+print(results.pvalues)
+# const        0.000000
+# log_admis    0.546285 -> coefficient pas significatif
+# dtype: float64
+
+
+# Avec Y_pcv
+
+X = parcoursup2024[['const', "log_admis"]]
+
+model = sm.OLS(Y_pcv, X, missing='drop')
+results = model.fit()
+
+print("paris, créteil et versailles regroupées")
+print(results.params)
+# const        48.219445
+# log_admis    -1.319296
+# dtype: float64
+print(results.rsquared)
+# 0.0029954300783467946
+print(results.pvalues)
+# const        0.000000e+00
+# log_admis    1.046033e-10 -> coefficient significatif à 1 %
+# dtype: float64
+
+
 # ---------- def d'une fonction pour faire les régressions afin de simplifier le code ------
 
 
