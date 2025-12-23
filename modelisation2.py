@@ -7,7 +7,7 @@ import statsmodels.api as sm
 import matplotlib.pyplot as plt
 import requests
 
-"""
+
 # -------- importation et nettoyage de la base de données principales ------------------
 url_parcoursup2024 = "https://www.data.gouv.fr/api/1/datasets/r/1d916b7c-bd4c-4951-845a-70f7ad7c17db"
 parcoursup2024 = pd.read_csv(url_parcoursup2024, sep=";")
@@ -162,7 +162,7 @@ parcoursup2024.loc[parcoursup2024["nb_admis"] == 0, "part_entrants_pcv"] = 0 # p
                                                                          # pour éviter d'avoir des NaN
 # rq = on peut aussi choisir de supprimer complétement ces formations, à voir
 Y_pcv = parcoursup2024[["part_entrants_pcv"]]
-"""
+
 
 # ------- Importation et nettoyage de la base de données de population par département ---------
 
@@ -186,5 +186,34 @@ Annee = pd.Series(Annee)
 Pop = pd.Series(Pop)
 pop_dep = pd.DataFrame(zip(Geo, Annee, Pop), columns=['Niveau géographique', 'Année', 'Population'])
 
+pop_dep['Département'] = pop_dep['Niveau géographique'].apply(lambda x : x[len(x)-2:len(x)])
 
-print(pop_dep.head(2))
+# ----------------- Merge des deux bases ---------------------------
+print(parcoursup2024["code_dep"].dtype)
+print(pop_dep["Département"].dtype)
+print(pop_dep['Niveau géographique'].dtype)
+# parcoursup2024 = parcoursup2024.merge(pop_dep,
+#                                     left_on="code_dep", right_on="Département", how='left')
+
+#print(parcoursup2024[['code_UAI','dep',"Département","Population"]].head(2))
+
+# ------------------- Régression ---------------------------------------
+"""
+# Avec Y
+X = parcoursup2024[['const', "Population"]]
+model = sm.OLS(Y, X, missing='drop')
+results = model.fit()
+print("paris, créteil et versailles séparées")
+print(results.params)
+print(results.rsquared)
+print(results.pvalues)
+
+# Avec Y_pcv
+X = parcoursup2024[['const', "Population"]]
+model = sm.OLS(Y_pcv, X, missing='drop')
+results = model.fit()
+print("paris, créteil et versailles regroupées")
+print(results.params)
+print(results.rsquared)
+print(results.pvalues)
+"""
