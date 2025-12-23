@@ -170,5 +170,21 @@ url_pop_dep = "https://api.insee.fr/melodi/data/DS_ESTIMATION_POPULATION?TIME_PE
 req_api = requests.get(url_pop_dep).json()
 clean_req = req_api.get('observations') # on obtient une liste de dictionnaire
                                         # un dictionnaire = une observation
-pop_dep = pd.DataFrame(clean_req)
-print(pop_dep)
+
+# j'ai pas trouvé de manière rapide qui fonctionne pour transformer en dataframe donc 
+# on va le faire en force brute
+Geo = []
+Annee = []
+Pop = []
+for d in clean_req :
+    Geo.append(d['dimensions']['GEO'])
+    Annee.append(d['dimensions']['TIME_PERIOD'])
+    Pop.append(d['measures']['OBS_VALUE_NIVEAU']['value'])
+
+Geo = pd.Series(Geo)
+Annee = pd.Series(Annee)
+Pop = pd.Series(Pop)
+pop_dep = pd.DataFrame(zip(Geo, Annee, Pop), columns=['Niveau géographique', 'Année', 'Population'])
+
+
+print(pop_dep.head(2))
