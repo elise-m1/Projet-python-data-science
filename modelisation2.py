@@ -218,7 +218,7 @@ parcoursup2024 = parcoursup2024.merge(pop_dep,
 X = parcoursup2024[['const', "Population"]]
 model = sm.OLS(Y, X, missing='drop')
 results = model.fit()
-print("paris, créteil et versailles séparées")
+# print("paris, créteil et versailles séparées")
 results.params
 # const         38.474381
 # Population     0.000008
@@ -234,7 +234,7 @@ results.pvalues
 X = parcoursup2024[['const', "Population"]]
 model = sm.OLS(Y_pcv, X, missing='drop')
 results = model.fit()
-print("paris, créteil et versailles regroupées")
+# print("paris, créteil et versailles regroupées")
 results.params
 # const         41.903216
 # Population     0.000001
@@ -244,4 +244,39 @@ results.rsquared
 results.pvalues
 # const         0.000000
 # Population    0.000024
+# dtype: float64
+
+# ------------ Régression sur le log de la pop -----------------------
+parcoursup2024["log_pop"] = parcoursup2024["Population"].apply(np.log)
+
+# Avec Y
+X = parcoursup2024[['const', "log_pop"]]
+model = sm.OLS(Y, X, missing='drop')
+results = model.fit()
+print("paris, créteil et versailles séparées")
+print(results.params)
+# const     -35.745986
+# log_pop     6.053994
+# dtype: float64
+print(results.rsquared)
+# 0.024069078639352703
+print(results.pvalues)
+# const      1.962259e-15
+# log_pop    4.633879e-76
+# dtype: float64
+
+# Avec Y_pcv
+X = parcoursup2024[['const', "log_pop"]]
+model = sm.OLS(Y_pcv, X, missing='drop')
+results = model.fit()
+print("paris, créteil et versailles regroupées")
+print(results.params)
+# const      39.027729
+# log_pop     0.324411
+# dtype: float64
+print(results.rsquared)
+# 7.698335635808462e-05
+print(results.pvalues)
+# const      1.567541e-19
+# log_pop    2.995078e-01
 # dtype: float64
