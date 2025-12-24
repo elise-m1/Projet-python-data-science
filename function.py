@@ -194,3 +194,42 @@ def charger_donnees(url):
 
     print(f"Succès {len(df)} lignes prêtes")
     return df
+
+def q1(x):
+    """
+    calcule le 1er quartile (25%)
+    """
+    return x.quantile(0.25)
+
+def q3(x):
+    """
+    calcule le 3ème quartile (75%)
+    """
+    return x.quantile(0.75)
+
+def decrire_donnees(df, categorie, col):
+    """
+    Génère un tableau décrivant les données avec l'effectif, Q1, la médiane, Q3 et la moyenne
+    pour une colonne donnée, groupée selon une catégorie.
+
+    df (data frame): dataframe
+    categorie (str) : colonne catégorielle
+    col (str) : colonne numérique à analyser
+
+    return un tableau formaté et trié 
+    """
+
+    #Création du tableau
+    tableau = df.groupby(categorie)[col].agg(
+        nombre="count",
+        Q1=q1,
+        médiane="median",
+        Q3=q3,
+        moyenne="mean"
+    )
+
+    #Tri selon la médiane
+    tableau = tableau.sort_values("médiane")
+
+    #Arrondi
+    return tableau.round(1)
