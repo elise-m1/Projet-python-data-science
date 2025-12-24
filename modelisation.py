@@ -501,3 +501,4 @@ def visualisation_reg(data, x_col, y_col):
     plt.ylabel(y_col)
     plt.title(f"Régression simple de {y_col} sur {x_col}")
     plt.show()
+

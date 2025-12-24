@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 
+# ---- Fonctions pour nettoyer la base de données -----------
+
 def simplification_statut(val):
     """
     Transforme le statut détaillé en Privé/Public/Autre
@@ -195,6 +197,8 @@ def charger_donnees(url):
     print(f"Succès {len(df)} lignes prêtes")
     return df
 
+# ------- Fonctions pour faire les statistiques descriptives ------------ 
+
 def q1(x):
     """
     calcule le 1er quartile (25%)
@@ -233,3 +237,55 @@ def decrire_donnees(df, categorie, col):
 
     #Arrondi
     return tableau.round(1)
+
+# --------- Fonctions pour faire les régressions ------------
+
+
+def regression(data, x_col, y_col):
+    """
+    Effectue une régression simple par la méthode des moindres carrés ordinaires et affiche 
+    les coefficients obtenus, le r2 et les p-valeurs
+    data (df) = les données sur lesquelles on fait la régression
+    x_col (str) = la variable sur laquelle on fait la régression
+    y_col (str)= la variable qu'on cherche à expliquer par la régression
+    """
+    data = sm.add_constant(data)
+    X = data[['const', x_col]]
+    Y = data[y_col]
+    model = sm.OLS(Y, X, missing='drop')
+    results = model.fit()
+    coeffs = results.params
+    std = results.bse
+    p = results.pvalues
+    print("Les coefficients de la régression sont :")
+    print(f"constante : {coeffs[0]:.3f} +/- {std[0]:.3f}")
+    print(f"{x_col} : {coeffs[1]:.3f} +/- {std[1]:.3f}")
+    print(f"Le R^2 obtenu est {results.rsquared:.3f}.")
+    print("Les p-valeurs sont :")
+    print(f"constante : {p[0]:.3f}")
+    print(f"{x_col} : {p[0]:.3f}")
+
+
+def visualisation_reg(data, x_col, y_col):
+    """
+    Effectue une régression simple par la méthode des moindres carrés ordinaires et
+    affiche le graphique correspondant
+    data (df) = les données sur lesquelles on fait la régression
+    x_col (str) = la variable sur laquelle on fait la régression
+    y_col (str)= la variable qu'on cherche à expliquer par la régression
+    """
+    data = sm.add_constant(data)
+    X = data[['const', x_col]]
+    Y = data[y_col]
+    model = sm.OLS(Y, X, missing='drop')
+    results = model.fit()
+    coeffs = results.params
+    X_reg = data[x_col]
+    Y_reg = coeffs[0] + coeffs[1] * X_reg
+    plt.figure(figsize=(12, 10))
+    plt.plot(X_reg, Y, 'o')
+    plt.plot(X_reg, Y_reg, '-')
+    plt.xlabel(x_col)
+    plt.ylabel(y_col)
+    plt.title(f"Régression simple de {y_col} sur {x_col}")
+    plt.show()
