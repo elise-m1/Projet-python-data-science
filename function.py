@@ -263,8 +263,8 @@ def regression(data, x_col, y_col):
     print(f"{x_col} : {coeffs.iloc[1]:.3f} +/- {std.iloc[1]:.3f}")
     print(f"Le R^2 obtenu est {results.rsquared:.3f}.")
     print("Les p-valeurs sont :")
-    print(f"constante : {p.iloc[0]:.3f}")
-    print(f"{x_col} : {p.iloc[0]:.3f}")
+    print(f"constante : {p.iloc[0]:.10f}")
+    print(f"{x_col} : {p.iloc[0]:.10f}")
 
 
 def visualisation_reg(data, x_col, y_col):
@@ -275,6 +275,7 @@ def visualisation_reg(data, x_col, y_col):
     x_col (str) = la variable sur laquelle on fait la régression
     y_col (str)= la variable qu'on cherche à expliquer par la régression
     """
+    import matplotlib.pyplot as plt
     data = sm.add_constant(data)
     X = data[['const', x_col]]
     Y = data[y_col]
