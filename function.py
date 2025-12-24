@@ -4,6 +4,7 @@
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
+import matplotlib.pyplot as plt
 
 # ---- Fonctions pour nettoyer la base de données -----------
 
@@ -258,12 +259,12 @@ def regression(data, x_col, y_col):
     std = results.bse
     p = results.pvalues
     print("Les coefficients de la régression sont :")
-    print(f"constante : {coeffs[0]:.3f} +/- {std[0]:.3f}")
-    print(f"{x_col} : {coeffs[1]:.3f} +/- {std[1]:.3f}")
+    print(f"constante : {coeffs.iloc[0]:.3f} +/- {std.iloc[0]:.3f}")
+    print(f"{x_col} : {coeffs.iloc[1]:.3f} +/- {std.iloc[1]:.3f}")
     print(f"Le R^2 obtenu est {results.rsquared:.3f}.")
     print("Les p-valeurs sont :")
-    print(f"constante : {p[0]:.3f}")
-    print(f"{x_col} : {p[0]:.3f}")
+    print(f"constante : {p.iloc[0]:.3f}")
+    print(f"{x_col} : {p.iloc[0]:.3f}")
 
 
 def visualisation_reg(data, x_col, y_col):
@@ -281,7 +282,7 @@ def visualisation_reg(data, x_col, y_col):
     results = model.fit()
     coeffs = results.params
     X_reg = data[x_col]
-    Y_reg = coeffs[0] + coeffs[1] * X_reg
+    Y_reg = coeffs.iloc[0] + coeffs.iloc[1] * X_reg
     plt.figure(figsize=(12, 10))
     plt.plot(X_reg, Y, 'o')
     plt.plot(X_reg, Y_reg, '-')
