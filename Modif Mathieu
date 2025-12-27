@@ -2,4 +2,7 @@
 import geodatasets
 import re
 
-#
+# Dans la partie "Carte de genre"
+Si tout marche bien, il y a juste à mettre Gender_card(df) et Gender_card_by_way(df)
+
+
