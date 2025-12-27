@@ -148,8 +148,17 @@ def nettoyage_base(df):
         "% d’admis dont filles" : "part_filles",
         "Taux d’accès":"taux_acces"
         }
+        
+    df = df.rename(columns=dict_noms)
 
-    return df.rename(columns=dict_noms)
+    # On filtre pour ne garder que les formations ayant au moins 1 admis
+    print(f"Nombre de formations avant filtrage : {len(df)}")
+
+    df = df[df["nb_admis"]>0]
+
+    print(f"Nombre de formations après filtrage : {len(df)}")
+    return df
+    
 
 def enrichir_donnees(df) :
     """"
