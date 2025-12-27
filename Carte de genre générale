@@ -1,0 +1,65 @@
+import re
+import pandas as pd
+import geopandas as gpd
+from shapely.geometry import Point
+import matplotlib.pyplot as plt
+import geodatasets
+
+file_path = 'fr-esr-parcoursup.csv'
+#Comme je me doute que vous avez pas forcément le fichier dans votre pc, voilà la commande pour utiliser l'URL
+# file_path = "https://www.data.gouv.fr/api/1/datasets/r/1d916b7c-bd4c-4951-845a-70f7ad7c17db"
+df = pd.read_csv(file_path, sep=';')
+
+
+
+
+df = df.dropna(subset=['Coordonnées GPS de la formation'])
+
+df[['lat', 'lon']] = df['Coordonnées GPS de la formation'].str.split(',', expand=True).astype(float)
+
+
+
+col_total = "Effectif total des candidats ayant accepté la proposition de l’établissement (admis)"
+col_femmes = 'Dont effectif des candidates admises'
+
+df['part_filles'] = (df[col_femmes] / df[col_total]) * 100
+df['Dominante'] = df['part_filles'].apply(lambda x: 'Féminine' if x > 50 else 'Masculine')
+
+df_metro = df[(df['lon'] > -5.5) & (df['lon'] < 10) & (df['lat'] > 41) & (df['lat'] < 51.5)]
+geometry = [Point(xy) for xy in zip(df_metro['lon'], df_metro['lat'])]
+gdf = gpd.GeoDataFrame(df_metro, geometry=geometry, crs="EPSG:4326")
+
+
+fig, ax = plt.subplots(figsize=(14, 14))
+
+
+try:
+    path = geodatasets.get_path("naturalearth.lowres")
+    world = gpd.read_file(path)
+    france = world[world.name == "France"]
+    france.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=1, zorder=1)
+except:
+    print("Fond de carte non disponible, affichage des points uniquement.")
+
+
+colors = {'Féminine': "#E6D410", 'Masculine': "#5FE909"} 
+
+for ctype, data in gdf.groupby('Dominante'):
+    color = colors.get(ctype, 'grey')
+    label = f"Dominante {ctype}"
+    data.plot(ax=ax, 
+              markersize=5, 
+              color=color, 
+              alpha=0.6, 
+              label=label,
+              zorder=2)
+
+plt.title("Répartition des formations selon la dominante de genre (Parcoursup 2024)", fontsize=16)
+plt.xlabel("Longitude")
+plt.ylabel("Latitude")
+plt.legend(title="Répartition", loc='upper right', fontsize=12)
+plt.grid(True, linestyle='--', alpha=0.3)
+plt.savefig('carte_parcoursup_genre.png', dpi=300, bbox_inches='tight')
+plt.show()
+
+print("Carte générée : carte_parcoursup_genre.png")

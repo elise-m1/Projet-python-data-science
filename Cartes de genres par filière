@@ -1,0 +1,94 @@
+import pandas as pd
+import geopandas as gpd
+from shapely.geometry import Point
+import matplotlib.pyplot as plt
+import geodatasets
+import re
+
+
+file_path = 'fr-esr-parcoursup.csv'
+#Comme je me doute que vous avez pas forcément le fichier dans votre pc, voilà la commande pour utiliser l'URL
+# file_path = "https://www.data.gouv.fr/api/1/datasets/r/1d916b7c-bd4c-4951-845a-70f7ad7c17db"
+df = pd.read_csv(file_path, sep=';')
+
+
+df = df.dropna(subset=['Coordonnées GPS de la formation'])
+
+
+df[['lat', 'lon']] = df['Coordonnées GPS de la formation'].str.split(',', expand=True).astype(float)
+
+
+col_total = "Effectif total des candidats ayant accepté la proposition de l’établissement (admis)"
+col_femmes = "Dont effectif des candidates admises"
+
+
+
+
+df['part_filles'] = (df[col_femmes] / df[col_total]) * 100
+df['Dominante'] = df['part_filles'].apply(lambda x: 'Féminine' if x > 50 else 'Masculine')
+
+try:
+    path = geodatasets.get_path("naturalearth.lowres")
+    world = gpd.read_file(path)
+    france = world[world.name == "France"]
+    has_map = True
+except:
+    print("Fond de carte non disponible.")
+    has_map = False
+
+
+filieres = df['Filière de formation très agrégée'].dropna().unique()
+
+print(f"Génération des cartes pour {len(filieres)} filières détectées...")
+
+for filiere in filieres:
+    print(f"Traitement de la filière : {filiere}")
+    
+
+    df_filiere = df[df['Filière de formation très agrégée'] == filiere].copy()
+    
+
+    df_metro = df_filiere[(df_filiere['lon'] > -5.5) & (df_filiere['lon'] < 10) & 
+                          (df_filiere['lat'] > 41) & (df_filiere['lat'] < 51.5)]
+    
+    if df_metro.empty:
+        print(f" -> Pas de données en métropole pour {filiere}, on passe.")
+        continue
+
+
+    geometry = [Point(xy) for xy in zip(df_metro['lon'], df_metro['lat'])]
+    gdf = gpd.GeoDataFrame(df_metro, geometry=geometry, crs="EPSG:4326")
+
+
+    fig, ax = plt.subplots(figsize=(12, 12))
+    
+
+    if has_map:
+        france.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=1, zorder=1)
+    
+
+    colors = {'Féminine': "#E6D410", 'Masculine': "#5FE909"}
+    
+    for ctype, data in gdf.groupby('Dominante'):
+        color = colors.get(ctype, 'grey')
+        data.plot(ax=ax, 
+                  markersize=15, 
+                  color=color, 
+                  alpha=0.7, 
+                  label=f"Majorité {ctype}",
+                  zorder=2)
+
+
+    plt.title(f"Répartition par genre - Filière : {filiere}", fontsize=15)
+    plt.legend(loc='upper right')
+    plt.axis('off') 
+    
+
+    safe_name = re.sub(r'[^\w\-_\. ]', '_', str(filiere))
+    filename = f"carte_genre_{safe_name}.png"
+    
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
+    plt.show()
+    plt.close() 
+    
+print("Terminé ! Toutes les cartes ont été générées.")
