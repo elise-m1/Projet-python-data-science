@@ -300,3 +300,37 @@ def visualisation_reg(data, x_col, y_col):
     plt.ylabel(y_col)
     plt.title(f"Régression simple de {y_col} sur {x_col}")
     plt.show()
+
+#C'est la fonction pour générer les cartes, j'ai dû la modifier pour respecter le critère de dominante, je sais pas si elle marche telle quelle
+#Donc je vais la remodifier si elle marche pas
+def Gender_card(df):
+    df = df.dropna(subset=["coord_GPS"])
+    df[['lat', 'lon']] = df["coord_GPS"].str.split(',', expand=True).astype(float)
+    df_metro = df[(df['lon'] > -5.5) & (df['lon'] < 10) & (df['lat'] > 41) & (df['lat'] < 51.5)]
+    geometry = [Point(xy) for xy in zip(df_metro['lon'], df_metro['lat'])]
+    gdf = gpd.GeoDataFrame(df_metro, geometry=geometry, crs="EPSG:4326")
+    df_metro = df[(df['lon'] > -5.5) & (df['lon'] < 10) & (df['lat'] > 41) & (df['lat'] < 51.5)]
+    geometry = [Point(xy) for xy in zip(df_metro['lon'], df_metro['lat'])]
+    gdf = gpd.GeoDataFrame(df_metro, geometry=geometry, crs="EPSG:4326")
+    fig, ax = plt.subplots(figsize=(14, 14))
+    try:
+        path = geodatasets.get_path("naturalearth.lowres")
+        world = gpd.read_file(path)
+        france = world[world.name == "France"]
+        france.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=1, zorder=1)
+    except:
+        print("Fond de carte non disponible, affichage des points uniquement.")
+    colors = {'Dominante féminine': "#E6D410", 'Dominante masculine': "#5FE909",'Mixte': "#6B449C"} 
+    for ctype, data in gdf.groupby('categorie_genre'):
+        color = colors.get(ctype, 'grey')
+        label = f"categorie_genre {ctype}"
+        data.plot(ax=ax, markersize=5, color=color, alpha=0.6,label=label,zorder=2)
+    plt.title("Répartition des formations selon la dominante de genre (Parcoursup 2024)", fontsize=16)
+    plt.xlabel("Longitude")
+    plt.ylabel("Latitude")
+    plt.legend(title="Répartition", loc='upper right', fontsize=12)
+    plt.grid(True, linestyle='--', alpha=0.3)
+    plt.savefig('carte_parcoursup_genre.png', dpi=300, bbox_inches='tight')
+    plt.show()
+    print("Carte générée : carte_parcoursup_genre.png")
+    
