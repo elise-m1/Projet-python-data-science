@@ -387,3 +387,32 @@ def Gender_card_by_way(df):
         plt.show()
         #plt.close() 
     
+
+# ------- Transformation des données obtenues par API en dataframe ------
+
+
+def create_df_pop(l):
+    Geo = []
+    Pop = []
+    for d in l:
+        Geo.append(d['dimensions']['GEO'])
+        Pop.append(d['measures']['OBS_VALUE_NIVEAU']['value'])
+    Geo = pd.Series(Geo)
+    Pop = pd.Series(Pop)
+    pop_dep = pd.DataFrame(zip(Geo, Pop), columns=['Niveau géographique', 'Population'])
+    return pop_dep
+
+
+# fonction pour convertir 'Niveau géographique' en le numéro du département
+def conversion(chaine):
+    n = len(chaine)
+    if n == 12: #départements d'outre-mer
+        return float(chaine[n-3:n])
+    elif chaine[n-2:n] == "2A": #haute-corse
+        return 100.0
+    elif chaine[n-2:n] == "2B": #corse du sud
+        return 101.0
+    else:
+        return float(chaine[n-2:n])
+
+
