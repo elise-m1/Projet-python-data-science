@@ -339,6 +339,7 @@ def Gender_card(df):
 #La fonction pour les cartes par filière, pareil, j'ai adapté aux modifs de cariables, mais pas sûr que ça marche 
 def Gender_card_by_way(df):
     from shapely.geometry import Point
+    import re
     df = df.dropna(subset=["coord_GPS"])
     df[['lat', 'lon']] = df["coord_GPS"].str.split(',', expand=True).astype(float)
     df_metro = df[(df['lon'] > -5.5) & (df['lon'] < 10) & (df['lat'] > 41) & (df['lat'] < 51.5)]
