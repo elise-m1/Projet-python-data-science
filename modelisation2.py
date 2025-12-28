@@ -135,9 +135,9 @@ def rename_parcoursup(df): # renomme les colonnes qu'on garde pour faciliter l'a
 
 parcoursup2024 = drop_parcoursup(parcoursup2024)
 parcoursup2024 = rename_parcoursup(parcoursup2024)
-parcoursup2024 = parcoursup2024[parcoursup2024["nb_admis"]>0]
+#parcoursup2024 = parcoursup2024[parcoursup2024["nb_admis"]>0]
 
-parcoursup2024.drop(parcoursup2024[parcoursup2024["academie"] == "Etranger"].index, inplace=True)
+#parcoursup2024.drop(parcoursup2024[parcoursup2024["academie"] == "Etranger"].index, inplace=True)
 # pour la Corse, code_dep est vide donc on fixe une valeur :
 parcoursup2024.loc[parcoursup2024["dep"] == "Haute-Corse", "code_dep"] = 100
 parcoursup2024.loc[parcoursup2024["dep"] == "Corse-du-Sud", "code_dep"] = 101

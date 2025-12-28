@@ -266,15 +266,14 @@ def regression(data, x_col, y_col):
     model = sm.OLS(Y, X, missing='drop')
     results = model.fit()
     coeffs = results.params
-    std = results.bse
     p = results.pvalues
     print("Les coefficients de la régression sont :")
     print(f"constante : {coeffs.iloc[0]:.3f} ")
     print(f"{x_col} : {coeffs.iloc[1]:.3f} ")
     print(f"Le R^2 obtenu est {results.rsquared:.3f}.")
     print("Les p-valeurs sont :")
-    print(f"constante : {p.iloc[0]:.10f}")
-    print(f"{x_col} : {p.iloc[0]:.10f}")
+    print(f"constante : {p.iloc[0]:.3e}")
+    print(f"{x_col} : {p.iloc[0]:.3e}")
 
 
 def visualisation_reg(data, x_col, y_col):
@@ -306,6 +305,7 @@ def visualisation_reg(data, x_col, y_col):
 #Donc je vais la remodifier si elle marche pas
 def Gender_card(df):
     from shapely.geometry import Point
+    import pandas as pd
     df = df.dropna(subset=["coord_GPS"])
     df[['lat', 'lon']] = df["coord_GPS"].str.split(',', expand=True).astype(float)
     df_metro = df[(df['lon'] > -5.5) & (df['lon'] < 10) & (df['lat'] > 41) & (df['lat'] < 51.5)]
