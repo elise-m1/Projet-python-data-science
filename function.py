@@ -273,7 +273,7 @@ def regression(data, x_col, y_col):
     print(f"Le R^2 obtenu est {results.rsquared:.3f}.")
     print("Les p-valeurs sont :")
     print(f"constante : {p.iloc[0]:.3e}")
-    print(f"{x_col} : {p.iloc[0]:.3e}")
+    print(f"{x_col} : {p.iloc[1]:.3e}")
 
 
 def visualisation_reg(data, x_col, y_col):

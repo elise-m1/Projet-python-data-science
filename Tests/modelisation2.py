@@ -145,12 +145,13 @@ parcoursup2024.loc[parcoursup2024["dep"] == "Corse-du-Sud", "code_dep"] = 101
 
 # Création de la variable qu'on cherche à expliquer, la part d'entrants issus d'une autre académie 
 
-parcoursup2024["nb_entrants"] = parcoursup2024["nb_admis"] - parcoursup2024["nb_admis_ac"]
-parcoursup2024["part_entrants"] = parcoursup2024["nb_entrants"] / parcoursup2024["nb_admis"]*100
+#parcoursup2024["nb_entrants"] = parcoursup2024["nb_admis"] - parcoursup2024["nb_admis_ac"]
+#parcoursup2024["part_entrants"] = parcoursup2024["nb_entrants"] / parcoursup2024["nb_admis"]*100
 # parcoursup2024.loc[parcoursup2024["nb_admis"] == 0, "part_entrants"] = 0 # pour les formations avec aucun admis
                                                                          # on fixe arbitrairement le taux d'entrants à 0
                                                                          # pour éviter d'avoir des NaN
 # rq = on peut aussi choisir de supprimer complétement ces formations, à voir
+parcoursup2024["part_entrants"] = 100 - parcoursup2024["part_bac_ac"]
 Y = parcoursup2024[["part_entrants"]]
 
 
@@ -162,12 +163,13 @@ parcoursup2024["academie_pcv"] = parcoursup2024["academie"].replace(
     ["Paris", "Créteil", "Versailles"], "Paris-Créteil-Versailles")
 
 # Création d'un autre Y correspondant à ce nouveau taux d'entrants
-parcoursup2024["nb_entrants_pcv"] = parcoursup2024["nb_admis"] - parcoursup2024["nb_admis_ac_pcv"]
-parcoursup2024["part_entrants_pcv"] = parcoursup2024["nb_entrants_pcv"] / parcoursup2024["nb_admis"]*100
+#parcoursup2024["nb_entrants_pcv"] = parcoursup2024["nb_admis"] - parcoursup2024["nb_admis_ac_pcv"]
+#parcoursup2024["part_entrants_pcv"] = parcoursup2024["nb_entrants_pcv"] / parcoursup2024["nb_admis"]*100
 # parcoursup2024.loc[parcoursup2024["nb_admis"] == 0, "part_entrants_pcv"] = 0 # pour les formations avec aucun admis
                                                                          # on fixe arbitrairement le taux d'entrants à 0
                                                                          # pour éviter d'avoir des NaN
 # rq = on peut aussi choisir de supprimer complétement ces formations, à voir
+parcoursup2024["part_entrants_pcv"] = 100 - parcoursup2024["part_bac_ac_pcv"]
 Y_pcv = parcoursup2024[["part_entrants_pcv"]]
 
 
@@ -278,7 +280,7 @@ print(results.params)
 # dtype: float64
 print(results.rsquared)
 # 7.698335635808462e-05
-print(results.pvalues)
+print(f"{results.pvalues.iloc[1]:.3e}")
 # const      1.567541e-19
 # log_pop    2.995078e-01
 # dtype: float64
