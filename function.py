@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 import matplotlib.pyplot as plt
+import geopandas as gpd
 
 # ---- Fonctions pour nettoyer la base de données -----------
 
@@ -304,6 +305,7 @@ def visualisation_reg(data, x_col, y_col):
 #C'est la fonction pour générer les cartes, j'ai dû la modifier pour respecter le critère de dominante, je sais pas si elle marche telle quelle
 #Donc je vais la remodifier si elle marche pas
 def Gender_card(df):
+    from shapely.geometry import Point
     df = df.dropna(subset=["coord_GPS"])
     df[['lat', 'lon']] = df["coord_GPS"].str.split(',', expand=True).astype(float)
     df_metro = df[(df['lon'] > -5.5) & (df['lon'] < 10) & (df['lat'] > 41) & (df['lat'] < 51.5)]
@@ -336,6 +338,7 @@ def Gender_card(df):
 
 #La fonction pour les cartes par filière, pareil, j'ai adapté aux modifs de cariables, mais pas sûr que ça marche 
 def Gender_card_by_way(df):
+    from shapely.geometry import Point
     df = df.dropna(subset=["coord_GPS"])
     df[['lat', 'lon']] = df["coord_GPS"].str.split(',', expand=True).astype(float)
     df_metro = df[(df['lon'] > -5.5) & (df['lon'] < 10) & (df['lat'] > 41) & (df['lat'] < 51.5)]
@@ -382,5 +385,5 @@ def Gender_card_by_way(df):
         filename = f"carte_genre_{safe_name}.png"
         plt.savefig(filename, dpi=300, bbox_inches='tight')
         plt.show()
-        plt.close() 
+        #plt.close() 
     
