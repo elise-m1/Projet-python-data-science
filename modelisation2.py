@@ -135,7 +135,9 @@ def rename_parcoursup(df): # renomme les colonnes qu'on garde pour faciliter l'a
 
 parcoursup2024 = drop_parcoursup(parcoursup2024)
 parcoursup2024 = rename_parcoursup(parcoursup2024)
+parcoursup2024 = parcoursup2024[parcoursup2024["nb_admis"]>0]
 
+parcoursup2024.drop(parcoursup2024[parcoursup2024["academie"] == "Etranger"].index, inplace=True)
 # pour la Corse, code_dep est vide donc on fixe une valeur :
 parcoursup2024.loc[parcoursup2024["dep"] == "Haute-Corse", "code_dep"] = 100
 parcoursup2024.loc[parcoursup2024["dep"] == "Corse-du-Sud", "code_dep"] = 101
@@ -145,7 +147,7 @@ parcoursup2024.loc[parcoursup2024["dep"] == "Corse-du-Sud", "code_dep"] = 101
 
 parcoursup2024["nb_entrants"] = parcoursup2024["nb_admis"] - parcoursup2024["nb_admis_ac"]
 parcoursup2024["part_entrants"] = parcoursup2024["nb_entrants"] / parcoursup2024["nb_admis"]*100
-parcoursup2024.loc[parcoursup2024["nb_admis"] == 0, "part_entrants"] = 0 # pour les formations avec aucun admis
+# parcoursup2024.loc[parcoursup2024["nb_admis"] == 0, "part_entrants"] = 0 # pour les formations avec aucun admis
                                                                          # on fixe arbitrairement le taux d'entrants à 0
                                                                          # pour éviter d'avoir des NaN
 # rq = on peut aussi choisir de supprimer complétement ces formations, à voir
@@ -162,7 +164,7 @@ parcoursup2024["academie_pcv"] = parcoursup2024["academie"].replace(
 # Création d'un autre Y correspondant à ce nouveau taux d'entrants
 parcoursup2024["nb_entrants_pcv"] = parcoursup2024["nb_admis"] - parcoursup2024["nb_admis_ac_pcv"]
 parcoursup2024["part_entrants_pcv"] = parcoursup2024["nb_entrants_pcv"] / parcoursup2024["nb_admis"]*100
-parcoursup2024.loc[parcoursup2024["nb_admis"] == 0, "part_entrants_pcv"] = 0 # pour les formations avec aucun admis
+# parcoursup2024.loc[parcoursup2024["nb_admis"] == 0, "part_entrants_pcv"] = 0 # pour les formations avec aucun admis
                                                                          # on fixe arbitrairement le taux d'entrants à 0
                                                                          # pour éviter d'avoir des NaN
 # rq = on peut aussi choisir de supprimer complétement ces formations, à voir
