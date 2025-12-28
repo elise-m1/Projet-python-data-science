@@ -367,7 +367,7 @@ def Gender_card_by_way(df):
         if has_map:
             france.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=1, zorder=1)
         colors = {'Dominante féminine': "#E6D410", 'Dominante masculine': "#5FE909",'Mixte': "#6B449C"} 
-        for  for ctype, data in gdf.groupby('categorie_genre'):
+        for  ctype, data in gdf.groupby('categorie_genre'):
             color = colors.get(ctype, 'grey')
             data.plot(ax=ax, 
                   markersize=15, 
