@@ -319,7 +319,7 @@ def Gender_card(df):
         path = geodatasets.get_path("naturalearth.lowres")
         world = gpd.read_file(path)
         france = world[world.name == "France"]
-        france.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=1, zorder=1)
+        france.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=2, zorder=2)
     except:
         print("Fond de carte non disponible, affichage des points uniquement.")
     colors = {'Dominante féminine': "#6B449C", 'Dominante masculine': "#5FE909",'Mixte': "#E6D410"} 
@@ -353,7 +353,7 @@ def Gender_card_by_way(df,filière):
         path = geodatasets.get_path("naturalearth.lowres")
         world = gpd.read_file(path)
         france = world[world.name == "France"]
-        france.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=1, zorder=1)
+        france.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=2, zorder=2)
         has_map = True
     except:
         print("Fond de carte non disponible, affichage des points uniquement.")
