@@ -337,7 +337,7 @@ def Gender_card(df):
     print("Carte générée : carte_parcoursup_genre.png")
 
 #La fonction pour les cartes par filière, pareil, j'ai adapté aux modifs de cariables, mais pas sûr que ça marche 
-def Gender_card_by_way(df):
+def Gender_card_by_way(df,filière):
     from shapely.geometry import Point
     import re
     df = df.dropna(subset=["coord_GPS"])
@@ -360,33 +360,36 @@ def Gender_card_by_way(df):
         has_map = False
     filieres = df['filiere_agr'].dropna().unique()
     for filiere in filieres:
-        df_filiere = df[df['filiere_agr'] == filiere].copy()
-        df_metro = df_filiere[(df_filiere['lon'] > -5.5) & (df_filiere['lon'] < 10) & (df_filiere['lat'] > 41) & (df_filiere['lat'] < 51.5)]
-        if df_metro.empty:
-            print(f" -> Pas de données en métropole pour {filiere}, on passe.")
-            continue
-        geometry = [Point(xy) for xy in zip(df_metro['lon'], df_metro['lat'])]
-        gdf = gpd.GeoDataFrame(df_metro, geometry=geometry, crs="EPSG:4326")
-        fig, ax = plt.subplots(figsize=(12, 12))
-        if has_map:
-            france.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=1, zorder=1)
-        colors = {'Dominante féminine': "#E6D410", 'Dominante masculine': "#5FE909",'Mixte': "#6B449C"} 
-        for  ctype, data in gdf.groupby('categorie_genre'):
-            color = colors.get(ctype, 'grey')
-            data.plot(ax=ax, 
-                  markersize=15, 
-                  color=color, 
-                  alpha=0.7, 
-                  label=f"categorie_genre {ctype}",
-                  zorder=2)
-        plt.title(f"Répartition par genre - Filière : {filiere}", fontsize=15)
-        plt.legend(loc='upper right')
-        plt.axis('off') 
-        safe_name = re.sub(r'[^\w\-_\. ]', '_', str(filiere))
-        filename = f"carte_genre_{safe_name}.png"
-        plt.savefig(filename, dpi=300, bbox_inches='tight')
-        plt.show()
-        #plt.close() 
+        if filiere == filière :
+            df_filiere = df[df['filiere_agr'] == filiere].copy()
+            df_metro = df_filiere[(df_filiere['lon'] > -5.5) & (df_filiere['lon'] < 10) & (df_filiere['lat'] > 41) & (df_filiere['lat'] < 51.5)]
+            if df_metro.empty:
+                print(f" -> Pas de données en métropole pour {filiere}, on passe.")
+                continue
+            geometry = [Point(xy) for xy in zip(df_metro['lon'], df_metro['lat'])]
+            gdf = gpd.GeoDataFrame(df_metro, geometry=geometry, crs="EPSG:4326")
+            fig, ax = plt.subplots(figsize=(12, 12))
+            if has_map:
+                france.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=1, zorder=1)
+            colors = {'Dominante féminine': "#E6D410", 'Dominante masculine': "#5FE909",'Mixte': "#6B449C"} 
+            for  ctype, data in gdf.groupby('categorie_genre'):
+                color = colors.get(ctype, 'grey')
+                data.plot(ax=ax, 
+                      markersize=15, 
+                      color=color, 
+                      alpha=0.7, 
+                      label=f"categorie_genre {ctype}",
+                      zorder=2)
+            plt.title(f"Répartition par genre - Filière : {filiere}", fontsize=15)
+            plt.legend(loc='upper right')
+            plt.axis('off') 
+            safe_name = re.sub(r'[^\w\-_\. ]', '_', str(filiere))
+            filename = f"carte_genre_{safe_name}.png"
+            plt.savefig(filename, dpi=300, bbox_inches='tight')
+            plt.show()
+        continue
+
+        
     
 
 # ------- Transformation des données obtenues par API en dataframe ------
