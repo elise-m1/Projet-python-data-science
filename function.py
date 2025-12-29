@@ -319,7 +319,7 @@ def Gender_card(df):
         path = geodatasets.get_path("naturalearth.lowres")
         world = gpd.read_file(path)
         france = world[world.name == "France"]
-        france.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=2, zorder=2)
+        france.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=1, zorder=1)
     except:
         print("Fond de carte non disponible, affichage des points uniquement.")
     colors = {'Dominante féminine': "#6B449C", 'Dominante masculine': "#5FE909",'Mixte': "#E6D410"} 
@@ -353,24 +353,15 @@ def Gender_card_by_way(df,filière):
         path = geodatasets.get_path("naturalearth.lowres")
         world = gpd.read_file(path)
         france = world[world.name == "France"]
-        france.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=2, zorder=2)
-        has_map = True
+        france.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=1, zorder=1)
+        
     except:
         print("Fond de carte non disponible, affichage des points uniquement.")
-        has_map = False
+        
     filieres = df['filiere_agr'].dropna().unique()
     for filiere in filieres:
         if filiere == filière :
             df_filiere = df[df['filiere_agr'] == filiere].copy()
-            df_metro = df_filiere[(df_filiere['lon'] > -5.5) & (df_filiere['lon'] < 10) & (df_filiere['lat'] > 41) & (df_filiere['lat'] < 51.5)]
-            if df_metro.empty:
-                print(f" -> Pas de données en métropole pour {filiere}, on passe.")
-                continue
-            geometry = [Point(xy) for xy in zip(df_metro['lon'], df_metro['lat'])]
-            gdf = gpd.GeoDataFrame(df_metro, geometry=geometry, crs="EPSG:4326")
-            fig, ax = plt.subplots(figsize=(12, 12))
-            if has_map:
-                france.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=1, zorder=1)
             colors = {'Dominante féminine': "#6B449C", 'Dominante masculine': "#5FE909",'Mixte': "#E6D410"}  
             for  ctype, data in gdf.groupby('categorie_genre'):
                 color = colors.get(ctype, 'grey')
