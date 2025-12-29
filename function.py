@@ -303,7 +303,7 @@ def visualisation_reg(data, x_col, y_col):
 
 #C'est la fonction pour générer les cartes, j'ai dû la modifier pour respecter le critère de dominante, je sais pas si elle marche telle quelle
 #Donc je vais la remodifier si elle marche pas
-def Gender_card(df):
+def Gender_map(df):
     from shapely.geometry import Point
     import pandas as pd
     df = df.dropna(subset=["coord_GPS"])
@@ -338,7 +338,7 @@ def Gender_card(df):
 
 #La fonction pour les cartes par filière, pareil, j'ai adapté aux modifs de cariables, mais pas sûr que ça marche 
 
-def Gender_card_by_way(df,filière):
+def Gender_map_by_way(df,filière):
     import re
     from shapely.geometry import Point
     import geodatasets
