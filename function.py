@@ -389,7 +389,43 @@ def Gender_card_by_way(df,filière):
             plt.show()
         continue
        
+def Gender_card_by_way2(df,filière):
+    import re
+    from shapely.geometry import Point
+    import geodatasets
+    df = df.dropna(subset=["coord_GPS"])
+    df[['lat', 'lon']] = df["coord_GPS"].str.split(',', expand=True).astype(float)
+    df_filiere = df[df['filiere_agr'] == filiere].copy()
+    df_metro = df_filiere[(df_filiere['lon'] > -5.5) & (df_filiere['lon'] < 10) & (df_filiere['lat'] > 41) & (df_filiere['lat'] < 51.5)]
+    geometry = [Point(xy) for xy in zip(df_metro['lon'], df_metro['lat'])]
+    gdf = gpd.GeoDataFrame(df_metro, geometry=geometry, crs="EPSG:4326")
+    fig, ax = plt.subplots(figsize=(14, 14))
+    try:
+        path = geodatasets.get_path("naturalearth.lowres")
+        world = gpd.read_file(path)
+        france = world[world.name == "France"]
+        france.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=1, zorder=1)
+        
+    except:
+        print("Fond de carte non disponible, affichage des points uniquement.")
     
+    colors = {'Dominante féminine': "#E6D410", 'Dominante masculine': "#5FE909",'Mixte': "#6B449C"} 
+    for ctype, data in gdf.groupby('categorie_genre'):
+        color = colors.get(ctype, 'grey')
+        data.plot(ax=ax, 
+                  markersize=15, 
+                  color=color, 
+                  alpha=0.7, 
+                  label=f"categorie_genre {ctype}",
+                  zorder=2)
+    plt.title(f"Répartition par genre - Filière : {filiere}", fontsize=15)
+    plt.legend(loc='upper right')
+    plt.axis('off') 
+    safe_name = re.sub(r'[^\w\-_\. ]', '_', str(filiere))
+    filename = f"carte_genre_{safe_name}.png"
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
+    plt.show()
+    plt.close()     
 
 # ------- Transformation des données obtenues par API en dataframe ------
 
