@@ -332,7 +332,7 @@ def Gender_map(df):
     plt.ylabel("Latitude")
     plt.legend(title="Répartition", loc='upper right', fontsize=12)
     plt.grid(True, linestyle='--', alpha=0.3)
-    plt.savefig('carte_parcoursup_genre.png', dpi=300, bbox_inches='tight')
+    #plt.savefig('carte_parcoursup_genre.png', dpi=300, bbox_inches='tight')
     plt.show()
     print("Carte générée : carte_parcoursup_genre.png")
 
@@ -372,7 +372,7 @@ def Gender_map_by_way(df,filière):
     plt.axis('off') 
     safe_name = re.sub(r'[^\w\-_\. ]', '_', str(filière))
     filename = f"carte_genre_{safe_name}.png"
-    plt.savefig(filename, dpi=300, bbox_inches='tight')
+    #plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
        
 
