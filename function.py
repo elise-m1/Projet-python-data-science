@@ -425,7 +425,7 @@ def Gender_card_by_way2(df,filière):
     filename = f"carte_genre_{safe_name}.png"
     plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
-    plt.close()     
+       
 
 # ------- Transformation des données obtenues par API en dataframe ------
 
