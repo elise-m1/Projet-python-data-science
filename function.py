@@ -342,13 +342,6 @@ def Gender_card_by_way(df,filière):
     import re
     df = df.dropna(subset=["coord_GPS"])
     df[['lat', 'lon']] = df["coord_GPS"].str.split(',', expand=True).astype(float)
-    df_metro = df[(df['lon'] > -5.5) & (df['lon'] < 10) & (df['lat'] > 41) & (df['lat'] < 51.5)]
-    geometry = [Point(xy) for xy in zip(df_metro['lon'], df_metro['lat'])]
-    gdf = gpd.GeoDataFrame(df_metro, geometry=geometry, crs="EPSG:4326")
-    df_metro = df[(df['lon'] > -5.5) & (df['lon'] < 10) & (df['lat'] > 41) & (df['lat'] < 51.5)]
-    geometry = [Point(xy) for xy in zip(df_metro['lon'], df_metro['lat'])]
-    gdf = gpd.GeoDataFrame(df_metro, geometry=geometry, crs="EPSG:4326")
-    fig, ax = plt.subplots(figsize=(14, 14))
     try:
         path = geodatasets.get_path("naturalearth.lowres")
         world = gpd.read_file(path)
@@ -360,17 +353,26 @@ def Gender_card_by_way(df,filière):
         
     filieres = df['filiere_agr'].dropna().unique()
     for filiere in filieres:
-        if filiere == filière :
+        if filiere == filière : 
             df_filiere = df[df['filiere_agr'] == filiere].copy()
-            colors = {'Dominante féminine': "#6B449C", 'Dominante masculine': "#5FE909",'Mixte': "#E6D410"}  
-            for  ctype, data in gdf.groupby('categorie_genre'):
+            df_metro = df_filiere[(df_filiere['lon'] > -5.5) & (df_filiere['lon'] < 10) & (df_filiere['lat'] > 41) & (df_filiere['lat'] < 51.5)]
+            if df_metro.empty:
+                print(f" -> Pas de données en métropole pour {filiere}, on passe.")
+                continue
+            geometry = [Point(xy) for xy in zip(df_metro['lon'], df_metro['lat'])]
+            gdf = gpd.GeoDataFrame(df_metro, geometry=geometry, crs="EPSG:4326")
+            fig, ax = plt.subplots(figsize=(12, 12))
+            
+            france.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=1, zorder=1)
+            colors = {'Dominante féminine': "#E6D410", 'Dominante masculine': "#5FE909",'Mixte': "#6B449C"} 
+            for ctype, data in gdf.groupby('categorie_genre'):
                 color = colors.get(ctype, 'grey')
                 data.plot(ax=ax, 
-                      markersize=15, 
-                      color=color, 
-                      alpha=0.7, 
-                      label=f"categorie_genre {ctype}",
-                      zorder=2)
+                  markersize=15, 
+                  color=color, 
+                  alpha=0.7, 
+                  label=f"categorie_genre {ctype}",
+                  zorder=2)
             plt.title(f"Répartition par genre - Filière : {filiere}", fontsize=15)
             plt.legend(loc='upper right')
             plt.axis('off') 
@@ -378,7 +380,9 @@ def Gender_card_by_way(df,filière):
             filename = f"carte_genre_{safe_name}.png"
             plt.savefig(filename, dpi=300, bbox_inches='tight')
             plt.show()
-        continue
+            plt.close() 
+        else:
+            continue
 
         
     
