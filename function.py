@@ -338,19 +338,26 @@ def Gender_card(df):
 
 #La fonction pour les cartes par filière, pareil, j'ai adapté aux modifs de cariables, mais pas sûr que ça marche 
 def Gender_card_by_way(df,filière):
+    import re 
     from shapely.geometry import Point
-    import re
     df = df.dropna(subset=["coord_GPS"])
     df[['lat', 'lon']] = df["coord_GPS"].str.split(',', expand=True).astype(float)
+    df_metro = df[(df['lon'] > -5.5) & (df['lon'] < 10) & (df['lat'] > 41) & (df['lat'] < 51.5)]
+    geometry = [Point(xy) for xy in zip(df_metro['lon'], df_metro['lat'])]
+    gdf = gpd.GeoDataFrame(df_metro, geometry=geometry, crs="EPSG:4326")
+    df_metro = df[(df['lon'] > -5.5) & (df['lon'] < 10) & (df['lat'] > 41) & (df['lat'] < 51.5)]
+    geometry = [Point(xy) for xy in zip(df_metro['lon'], df_metro['lat'])]
+    gdf = gpd.GeoDataFrame(df_metro, geometry=geometry, crs="EPSG:4326")
+    fig, ax = plt.subplots(figsize=(14, 14))
     try:
         path = geodatasets.get_path("naturalearth.lowres")
         world = gpd.read_file(path)
         france = world[world.name == "France"]
         france.plot(ax=ax, color='#f4f4f4', edgecolor='black', linewidth=1, zorder=1)
-        
+        has_map = True
     except:
         print("Fond de carte non disponible, affichage des points uniquement.")
-        
+        has_map = False
     filieres = df['filiere_agr'].dropna().unique()
     for filiere in filieres:
         if filiere == filière : 
@@ -383,7 +390,6 @@ def Gender_card_by_way(df,filière):
             plt.close() 
         else:
             continue
-
         
     
 
