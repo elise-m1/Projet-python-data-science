@@ -3,6 +3,9 @@ import geodatasets
 import re
 
 # Dans la partie "Carte de genre"
-Si tout marche bien, il y a juste à mettre Gender_card(df) et Gender_card_by_way(df)
+Gender_card_by_way prend désormais en argument la filière que l'on veut afficher, donc mettre :
+Gender_card_by_way(df,PASS)
+Gender_card_by_way(df,BTS)
+Gender_card_by_way(df,CPGE)
 
 
