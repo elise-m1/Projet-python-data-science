@@ -2,13 +2,13 @@
 
 ## Présentation du dépot :
 
-Notre rendu est le notebook '''new_main.ipynb'''
+Notre rendu est le notebook ```new_main.ipynb```
 
-Le fichier '''function.py''' nous sert à définir les fonctions que nous utilisons dans le notebook, pour faciliter la lecture de ce dernier.
+Le fichier ```function.py``` nous sert à définir les fonctions que nous utilisons dans le notebook, pour faciliter la lecture de ce dernier.
 
-Le dossier '''Graphiques''' contient les graphiques produits et le dossier '''Cartes''' les cartes produites.
+Le dossier ```Graphiques``` contient les graphiques produits et le dossier ```Cartes``` les cartes produites.
 
-Le dossier '''Tests''' contient les fichiers codés lors de la phase d'exploration de nos données et de nos premières analyses.
+Le dossier ```Tests``` contient les fichiers codés lors de la phase d'exploration de nos données et de nos premières analyses.
 
 
 ## Données utilisées : 
