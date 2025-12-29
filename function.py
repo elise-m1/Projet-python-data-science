@@ -409,7 +409,7 @@ def Gender_card_by_way2(df,filière):
     except:
         print("Fond de carte non disponible, affichage des points uniquement.")
     
-    colors = {'Dominante féminine': "#E6D410", 'Dominante masculine': "#5FE909",'Mixte': "#6B449C"} 
+    colors = {'Dominante féminine': "#6B449C", 'Dominante masculine': "#5FE909",'Mixte': "#E6D410"}
     for ctype, data in gdf.groupby('categorie_genre'):
         color = colors.get(ctype, 'grey')
         data.plot(ax=ax, 
@@ -418,10 +418,10 @@ def Gender_card_by_way2(df,filière):
                   alpha=0.7, 
                   label=f"categorie_genre {ctype}",
                   zorder=2)
-    plt.title(f"Répartition par genre - Filière : {filiere}", fontsize=15)
+    plt.title(f"Répartition par genre - Filière : {filière}", fontsize=15)
     plt.legend(loc='upper right')
     plt.axis('off') 
-    safe_name = re.sub(r'[^\w\-_\. ]', '_', str(filiere))
+    safe_name = re.sub(r'[^\w\-_\. ]', '_', str(filière))
     filename = f"carte_genre_{safe_name}.png"
     plt.savefig(filename, dpi=300, bbox_inches='tight')
     plt.show()
