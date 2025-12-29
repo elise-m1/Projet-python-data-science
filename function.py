@@ -395,7 +395,7 @@ def Gender_card_by_way2(df,filière):
     import geodatasets
     df = df.dropna(subset=["coord_GPS"])
     df[['lat', 'lon']] = df["coord_GPS"].str.split(',', expand=True).astype(float)
-    df_filiere = df[df['filiere_agr'] == filiere].copy()
+    df_filiere = df[df['filiere_agr'] == filière].copy()
     df_metro = df_filiere[(df_filiere['lon'] > -5.5) & (df_filiere['lon'] < 10) & (df_filiere['lat'] > 41) & (df_filiere['lat'] < 51.5)]
     geometry = [Point(xy) for xy in zip(df_metro['lon'], df_metro['lat'])]
     gdf = gpd.GeoDataFrame(df_metro, geometry=geometry, crs="EPSG:4326")
